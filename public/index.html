@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnalfaBet - Apostas Brasileirão</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>AnalfaBet</h1>
+        <nav>
+            <a href="/">Apostas</a>
+            <a href="/classificacao.html">Classificação</a>
+            <!-- Links de Login/Logout aparecerão aqui via JS -->
+        </nav>
+    </header>
+
+    <main>
+        <section id="auth-section">
+            <h2>Login / Cadastro</h2>
+            <div id="login-form">
+                <h3>Login</h3>
+                <div id="login-message" class="message-area"></div>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Senha" required>
+                <button id="login-button">Entrar</button>
+            </div>
+            <hr>
+            <div id="register-form">
+                <h3>Cadastro</h3>
+                <div id="register-message" class="message-area"></div>
+                <input type="text" id="register-name" placeholder="Nome" required>
+                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="password" id="register-password" placeholder="Senha" required>
+                <button id="register-button">Cadastrar</button>
+            </div>
+        </section>
+
+        <section id="apostas-section" style="display:none;">
+            <h2>Faça sua Aposta</h2>
+            <div id="aposta-message" class="message-area"></div>
+            <div id="jogos-lista">
+                <!-- Lista de jogos aparecerá aqui -->
+                <p>Carregando jogos...</p>
+            </div>
+        </section>
+
+        <section id="minhas-apostas-section" style="display:none;">
+            <h2>Minhas Apostas</h2>
+            <div id="minhas-apostas-lista">
+                <!-- Minhas apostas aparecerão aqui -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 AnalfaBet</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

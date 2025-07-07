@@ -1,0 +1,220 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 1em 0;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav a {
+    color: white;
+    margin: 0 1em;
+    text-decoration: none;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 1em;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+section {
+    margin-bottom: 2em;
+}
+
+h2, h3 {
+    color: #333;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #5cb85c;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #4cae4c;
+}
+
+#login-form, #register-form {
+    margin-bottom: 1em;
+}
+
+hr {
+    margin: 20px 0;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+#jogos-lista .jogo, #minhas-apostas-lista .aposta {
+    border: 1px solid #eee;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+#jogos-lista .jogo h4, #minhas-apostas-lista .aposta h4 {
+    margin-top: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f0f0f0;
+}
+
+footer {
+    text-align: center;
+    padding: 1em 0;
+    margin-top: 2em;
+    font-size: 0.9em;
+    color: #777;
+}
+
+/* Adicionado para AnalfaBet */
+.escudo-time {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin: 0 5px;
+    background-color: #eee; /* Placeholder se a imagem não carregar */
+    border: 1px solid #ccc;
+}
+
+.aposta-inputs {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 10px;
+}
+.aposta-inputs input[type="number"] {
+    width: 100px; /* Ajustar conforme necessário */
+    margin-bottom: 0;
+    box-sizing: border-box; /* Adicionado */
+}
+
+.jogo-status {
+    font-style: italic;
+    color: #777;
+    margin-top: 10px;
+}
+.resultado-final {
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Message Area Styles */
+.message-area {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: none; /* Escondido por padrão */
+    border: 1px solid transparent; /* Borda base */
+}
+.message-area.success {
+    background-color: #dff0d8;
+    color: #3c763d;
+    border-color: #d6e9c6;
+    display: block;
+}
+.message-area.error {
+    background-color: #f2dede;
+    color: #a94442;
+    border-color: #ebccd1;
+    display: block;
+}
+.message-area.info {
+    background-color: #d9edf7;
+    color: #31708f;
+    border-color: #bce8f1;
+    display: block;
+}
+
+/* Melhorias de Botão e Input (algumas já podem estar acima) */
+button {
+    font-size: 1em;
+    min-width: 100px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    box-sizing: border-box; /* Garante que width inclua padding e border */
+}
+
+#login-form button, #register-form button {
+    margin-top: 5px;
+}
+
+/* Tabela de classificação */
+#tabela-classificacao {
+    margin-top: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+#tabela-classificacao th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 15px;
+    text-align: left; /* Garantir alinhamento */
+}
+#tabela-classificacao td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e0e0e0;
+     text-align: left; /* Garantir alinhamento */
+}
+#tabela-classificacao tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+#tabela-classificacao tbody tr:hover {
+    background-color: #f1f1f1;
+}
+#tabela-classificacao tbody tr.vencedor-destaque {
+    font-weight: bold;
+    background-color: #dff0d8 !important;
+}
+#vencedores-info h3 {
+    color: #3c763d;
+    margin-top: 0; /* Ajustar margem se necessário */
+}
