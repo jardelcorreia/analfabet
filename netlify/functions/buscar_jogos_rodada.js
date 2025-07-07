@@ -6,9 +6,20 @@ const COMPETITION_ID = 'BSA'; // Brasileirão Série A
 const API_BASE_URL = 'https://api.football-data.org/v4';
 
 async function upsertJogo(client, jogo) {
+    // Certifique-se de que 'jogo' e suas propriedades aninhadas como 'homeTeam', 'awayTeam', 'score' existem
+    if (!jogo || !jogo.homeTeam || !jogo.awayTeam || !jogo.score) {
+        console.warn("Dados do jogo incompletos recebidos da API, pulando upsert:", jogo);
+        return null; // Ou lançar um erro se preferir parar o processamento
+    }
+
     const { id, utcDate, status, matchday, homeTeam, awayTeam, score } = jogo;
-    const fullTimeHome = score && score.fullTime ? score.fullTime.home : null;
-    const fullTimeAway = score && score.fullTime ? score.fullTime.away : null;
+    const fullTimeHome = score.fullTime ? score.fullTime.home : null;
+    const fullTimeAway = score.fullTime ? score.fullTime.away : null;
+
+    // Validação adicional para nomes de times
+    const homeTeamName = homeTeam.name || 'Time da Casa Desconhecido';
+    const awayTeamName = awayTeam.name || 'Time Visitante Desconhecido';
+
 
     const query = `
         INSERT INTO jogos (id_jogo_api, data_jogo, time_casa, time_visitante, placar_casa_real, placar_visitante_real, status_jogo)
@@ -22,11 +33,11 @@ async function upsertJogo(client, jogo) {
             status_jogo = EXCLUDED.status_jogo
         RETURNING *;
     `;
-    const values = [id, utcDate, homeTeam.name, awayTeam.name, fullTimeHome, fullTimeAway, status];
+    const values = [id, utcDate, homeTeamName, awayTeamName, fullTimeHome, fullTimeAway, status];
 
     try {
         const res = await client.query(query, values);
-        console.log(`Jogo ${id} (${homeTeam.name} vs ${awayTeam.name}) salvo/atualizado no DB.`);
+        console.log(`Jogo ${id} (${homeTeamName} vs ${awayTeamName}) salvo/atualizado no DB.`);
         return res.rows[0];
     } catch (dbError) {
         console.error(`Erro ao salvar jogo ${id} no DB:`, dbError);
@@ -36,7 +47,12 @@ async function upsertJogo(client, jogo) {
 
 exports.handler = async function(event, context) {
     if (!API_TOKEN) {
+        console.error("FOOTBALL_DATA_API_KEY não está configurada.");
         return { statusCode: 500, body: JSON.stringify({ message: "Chave da API de futebol não configurada no servidor." }) };
+    }
+    if (!process.env.DATABASE_URL) {
+        console.error("DATABASE_URL não está configurada.");
+        return { statusCode: 500, body: JSON.stringify({ message: "String de conexão do banco de dados não configurada." }) };
     }
 
     const client = new Client({
@@ -45,22 +61,28 @@ exports.handler = async function(event, context) {
     });
 
     try {
-        const { matchday } = event.queryStringParameters || {};
-        let apiUrl = `${API_BASE_URL}/competitions/${COMPETITION_ID}/matches`;
+        // 1. Buscar a rodada atual da competição
+        console.log(`Buscando informações da competição ${COMPETITION_ID}...`);
+        const competitionResponse = await fetch(`${API_BASE_URL}/competitions/${COMPETITION_ID}`, {
+            headers: { 'X-Auth-Token': API_TOKEN }
+        });
 
-        const params = new URLSearchParams();
-        if (matchday) {
-            params.append('matchday', matchday);
+        if (!competitionResponse.ok) {
+            const errorText = await competitionResponse.text();
+            console.error(`Erro ao buscar dados da competição ${COMPETITION_ID}: ${competitionResponse.status}`, errorText);
+            return { statusCode: competitionResponse.status, body: JSON.stringify({ message: `Erro ao buscar dados da competição: ${errorText}` }) };
         }
-        // Você pode adicionar outros filtros aqui, como 'status'
-        // params.append('status', 'SCHEDULED');
-        // params.append('dateFrom', 'YYYY-MM-DD');
-        // params.append('dateTo', 'YYYY-MM-DD');
+        const competitionData = await competitionResponse.json();
+        const currentMatchday = competitionData.currentSeason ? competitionData.currentSeason.currentMatchday : null;
 
-        const queryString = params.toString();
-        if (queryString) {
-            apiUrl += `?${queryString}`;
+        if (!currentMatchday) {
+            console.warn(`Não foi possível determinar a rodada atual (currentMatchday) para ${COMPETITION_ID}.`);
+            return { statusCode: 200, body: JSON.stringify({ message: "Rodada atual (currentMatchday) não encontrada para a competição.", jogos: [] }) };
         }
+        console.log(`Rodada atual (currentMatchday) para ${COMPETITION_ID}: ${currentMatchday}`);
+
+        // 2. Buscar jogos da rodada atual
+        const apiUrl = `${API_BASE_URL}/competitions/${COMPETITION_ID}/matches?matchday=${currentMatchday}`;
 
         console.log(`Buscando jogos da API: ${apiUrl}`);
         const response = await fetch(apiUrl, {
@@ -68,11 +90,11 @@ exports.handler = async function(event, context) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: response.statusText }));
-            console.error("Erro ao buscar dados da API football-data:", response.status, errorData);
+            const errorText = await response.text();
+            console.error("Erro ao buscar dados da API football-data:", response.status, errorText);
             return {
                 statusCode: response.status,
-                body: JSON.stringify({ message: "Erro ao buscar dados dos jogos.", apiError: errorData })
+                body: JSON.stringify({ message: "Erro ao buscar dados dos jogos.", apiError: errorText })
             };
         }
 
@@ -80,46 +102,49 @@ exports.handler = async function(event, context) {
         const jogosDaApi = data.matches;
 
         if (!jogosDaApi || jogosDaApi.length === 0) {
-            return { statusCode: 200, body: JSON.stringify({ message: "Nenhum jogo encontrado para os critérios.", jogos: [] }) };
+            return { statusCode: 200, body: JSON.stringify({ message: `Nenhum jogo encontrado para a rodada ${currentMatchday}.`, jogos: [] }) };
         }
 
         await client.connect();
-        console.log("Conectado ao DB para salvar/atualizar jogos.");
+        console.log("Conectado ao DB para salvar/atualizar jogos da rodada.");
 
         const jogosSalvosFormatados = [];
         for (const jogo of jogosDaApi) {
+            if (!jogo || !jogo.id) { // Checagem básica se o objeto jogo é válido
+                console.warn("Objeto de jogo inválido ou sem ID recebido da API:", jogo);
+                continue;
+            }
             try {
-                await upsertJogo(client, jogo); // Salva no DB, mas não usamos o retorno direto aqui
+                await upsertJogo(client, jogo);
 
-                // Formatamos o objeto para o frontend
                 jogosSalvosFormatados.push({
                     id_jogo_api: jogo.id,
                     data_jogo: jogo.utcDate,
                     status_jogo: jogo.status,
                     matchday: jogo.matchday,
-                    time_casa: { id: jogo.homeTeam.id, nome: jogo.homeTeam.name, escudo: jogo.homeTeam.crest || null },
-                    time_visitante: { id: jogo.awayTeam.id, nome: jogo.awayTeam.name, escudo: jogo.awayTeam.crest || null },
+                    time_casa: { id: jogo.homeTeam.id, nome: jogo.homeTeam.name || 'N/A', escudo: jogo.homeTeam.crest || null },
+                    time_visitante: { id: jogo.awayTeam.id, nome: jogo.awayTeam.name || 'N/A', escudo: jogo.awayTeam.crest || null },
                     placar_casa_real: jogo.score && jogo.score.fullTime ? jogo.score.fullTime.home : null,
                     placar_visitante_real: jogo.score && jogo.score.fullTime ? jogo.score.fullTime.away : null,
                 });
             } catch (upsertError) {
-                console.warn(`Falha ao processar o jogo ${jogo.id}, continuando com os próximos.`);
+                console.warn(`Falha ao processar o jogo ${jogo.id} da rodada ${currentMatchday}, continuando com os próximos.`);
             }
         }
 
         await client.end();
-        console.log("Desconectado do DB.");
+        console.log("Desconectado do DB após processar jogos da rodada.");
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ jogos: jogosSalvosFormatados })
+            body: JSON.stringify({ jogos: jogosSalvosFormatados, message: `Jogos da rodada ${currentMatchday} processados.` })
         };
 
     } catch (error) {
         console.error("Erro na função buscar_jogos_rodada:", error);
         if (client && client._connected) {
-            await client.end().catch(console.error);
+            await client.end().catch(e => console.error("Erro ao fechar conexão do DB após falha:", e));
         }
-        return { statusCode: 500, body: JSON.stringify({ message: 'Erro interno do servidor ao buscar jogos.', error: error.message }) };
+        return { statusCode: 500, body: JSON.stringify({ message: 'Erro interno do servidor ao buscar jogos.', error: error.message, stack: error.stack }) };
     }
 };
