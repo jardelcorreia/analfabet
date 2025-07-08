@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginButton = document.getElementById('login-button');
     const registerButton = document.getElementById('register-button');
 
+    // Elementos dos cards de autenticação e links de alternância
+    const loginCard = document.getElementById('login-card');
+    const registerCard = document.getElementById('register-card');
+    const showRegisterLink = document.getElementById('show-register-link');
+    const showLoginLink = document.getElementById('show-login-link');
+
     let token = localStorage.getItem('analfaBetToken');
     let userName = localStorage.getItem('analfaBetUserName');
 
@@ -81,7 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateNav();
 
         if (isLoggedIn) {
-            if (authSection) authSection.style.display = 'none';
+            if (authSection) authSection.style.display = 'none'; // Esconde a seção inteira
+            if (loginCard) loginCard.style.display = 'none'; // Garante que cards individuais também sejam escondidos
+            if (registerCard) registerCard.style.display = 'none';
             if (apostasSection) apostasSection.style.display = 'block';
             if (minhasApostasSection) minhasApostasSection.style.display = 'block';
 
@@ -92,10 +100,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetchMinhasApostas();
             }
         } else {
-            if (authSection) authSection.style.display = 'block';
+            if (authSection) authSection.style.display = 'block'; // Mostra a seção de autenticação
+            if (loginCard) loginCard.style.display = 'block'; // Mostra o card de login por padrão
+            if (registerCard) registerCard.style.display = 'none'; // Esconde o card de registro
             if (apostasSection) apostasSection.style.display = 'none';
             if (minhasApostasSection) minhasApostasSection.style.display = 'none';
         }
+    }
+
+    // Lógica para alternar entre cards de login e registro
+    if (showRegisterLink && loginCard && registerCard) {
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginCard.style.display = 'none';
+            registerCard.style.display = 'block';
+            clearMessage('login-message');
+            clearMessage('register-message'); // Limpa mensagens ao trocar
+        });
+    }
+
+    if (showLoginLink && loginCard && registerCard) {
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerCard.style.display = 'none';
+            loginCard.style.display = 'block';
+            clearMessage('login-message');
+            clearMessage('register-message'); // Limpa mensagens ao trocar
+        });
     }
 
     if (loginButton) {

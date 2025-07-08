@@ -1,5 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+:root {
+    --primary-color: #007bff; /* Azul moderno */
+    --primary-color-hover: #0056b3;
+    --secondary-color: #6c757d; /* Cinza para elementos secundários */
+    --light-gray-color: #f8f9fa; /* Fundo de cards, etc. */
+    --very-light-gray-color: #f4f4f4; /* Fundo da página */
+    --text-color: #333;
+    --text-color-light: #555;
+    --border-color: #ddd;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --white-color: #fff;
+    --font-family-base: 'Roboto', sans-serif;
+}
+
 body {
-    font-family: sans-serif;
+    font-family: var(--font-family-base);
     margin: 0;
     background-color: #f4f4f4;
     color: #333;
@@ -71,7 +88,201 @@ button:hover {
     margin-bottom: 1em;
 }
 
-hr {
+/* Estilos da Seção de Autenticação Modernizada */
+#auth-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 200px); /* Ajustar conforme altura do header/footer */
+    padding: 20px 0; /* Adiciona um pouco de padding vertical */
+}
+
+.auth-container {
+    max-width: 420px;
+    width: 100%;
+    padding: 15px; /* Padding para telas menores */
+}
+
+.auth-card {
+    background-color: var(--white-color);
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px; /* Espaço se houver múltiplos cards ou outros elementos */
+}
+
+.auth-card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-color-light);
+}
+
+.input-group input[type="email"],
+.input-group input[type="password"],
+.input-group input[type="text"] {
+    width: 100%; /* Ocupa toda a largura do .input-group */
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-sizing: border-box; /* Importante para o width 100% funcionar bem */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.input-group input[type="email"]:focus,
+.input-group input[type="password"]:focus,
+.input-group input[type="text"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+
+.btn { /* Classe base para botões */
+    display: inline-block;
+    font-weight: 500;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    width: 100%; /* Botões principais ocupam toda a largura */
+    margin-top: 5px; /* Espaço acima do botão */
+}
+
+.btn-primary {
+    color: var(--white-color);
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-color-hover);
+    border-color: var(--primary-color-hover);
+}
+
+.form-footer {
+    text-align: right;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.form-footer a, .auth-switch a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.form-footer a:hover, .auth-switch a:hover {
+    text-decoration: underline;
+}
+
+.social-login-divider {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 0.9em;
+    color: var(--text-color-light);
+}
+
+.social-login-divider span {
+    background-color: var(--white-color);
+    padding: 0 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.social-login-divider::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: var(--border-color);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    z-index: 0;
+}
+
+.social-login-buttons {
+    display: flex;
+    gap: 10px; /* Espaço entre botões sociais */
+    margin-bottom: 20px;
+}
+
+.btn-social {
+    flex-grow: 1; /* Faz os botões ocuparem espaço igual */
+    padding: 10px;
+    font-size: 0.95em;
+    /* Adicionar cores específicas para Google/Facebook abaixo */
+}
+
+.btn-google {
+    background-color: #db4437;
+    color: var(--white-color);
+    border-color: #db4437;
+}
+.btn-google:hover {
+    background-color: #c23327;
+    border-color: #c23327;
+}
+
+.btn-facebook {
+    background-color: #3b5998;
+    color: var(--white-color);
+    border-color: #3b5998;
+}
+.btn-facebook:hover {
+    background-color: #30497c;
+    border-color: #30497c;
+}
+
+.auth-switch {
+    text-align: center;
+    font-size: 0.95em;
+    color: var(--text-color-light);
+}
+.auth-switch a {
+    font-weight: 500;
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 25px 20px; /* Reduz padding horizontal para telas menores */
+    }
+
+    .auth-card h2 {
+        font-size: 1.5rem; /* Reduz um pouco o título */
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+
+    .input-group input[type="email"],
+    .input-group input[type="password"],
+    .input-group input[type="text"] {
+        padding: 10px 12px;
+    }
+}
+
+
+hr { /* Manter ou ajustar o hr antigo se ainda for usado em outros lugares */
     margin: 20px 0;
     border: 0;
     border-top: 1px solid #eee;
@@ -155,38 +366,51 @@ footer {
     background-color: #dff0d8;
     color: #3c763d;
     border-color: #d6e9c6;
-    display: block;
+    /* display: block; */ /* Controlado por JS e estilos de auth */
 }
 .message-area.error {
-    background-color: #f2dede;
-    color: #a94442;
-    border-color: #ebccd1;
-    display: block;
+    background-color: var(--error-color); /* Usando variável */
+    color: var(--white-color); /* Texto branco para melhor contraste */
+    border-color: var(--error-color);
+     /* display: block; */
 }
 .message-area.info {
-    background-color: #d9edf7;
+    background-color: #d9edf7; /* Pode criar variável ou manter */
     color: #31708f;
     border-color: #bce8f1;
-    display: block;
+    /* display: block; */
 }
 
-/* Melhorias de Botão e Input (algumas já podem estar acima) */
-button {
+/* Ajustes nos botões e inputs globais para consistência, se necessário */
+/* A classe .btn já cobre muitos dos botões de formulário. */
+/* Os inputs dentro de .input-group já estão estilizados. */
+
+/* Botões fora dos formulários de autenticação podem precisar de ajustes
+   para se alinharem com o novo estilo .btn, ou manterem seus estilos antigos
+   se forem intencionalmente diferentes. */
+
+button { /* Estilo base para botões que não usam a classe .btn */
     font-size: 1em;
-    min-width: 100px;
+    /* min-width: 100px; */ /* Removido para dar flexibilidade à classe .btn */
     transition: background-color 0.2s ease-in-out;
+    /* Demais propriedades como padding, border-radius, etc.,
+       serão tratadas por classes mais específicas como .btn ou estilos legados. */
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"] {
-    box-sizing: border-box; /* Garante que width inclua padding e border */
+/* Inputs globais fora dos .input-group (ex: placar aposta) */
+input[type="number"] { /* Aplicar a todos os inputs number, incluindo os de aposta */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+input[type="number"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
 }
 
-#login-form button, #register-form button {
-    margin-top: 5px;
-}
 
 /* Tabela de classificação */
 #tabela-classificacao {
