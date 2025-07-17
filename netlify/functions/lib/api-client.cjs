@@ -7,7 +7,7 @@ const fetchLiveMatches = async () => {
   try {
     const response = await fetch(`${API_URL}/ao-vivo`, {
       headers: {
-        'Authorization': `Bearer ${API_TOKEN}`
+        'Authorization': `Bearer test_123`
       }
     });
 
