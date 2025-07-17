@@ -1,0 +1,67 @@
+const axios = require('axios');
+const { dbHelpers } = require('./lib/database-server.cjs');
+
+const API_KEY = process.env.SPORTSDB_API_KEY; // Replace with your actual API key
+const API_URL = 'https://www.thesportsdb.com/api/v1/json/{API_KEY}/eventsround.php?id=4351&r={round}&s=2025'; // 4351 is the ID for Brasileirão Série A 2025
+
+const getStatus = (apiStatus) => {
+  const lowerCaseStatus = apiStatus.toLowerCase();
+  if (lowerCaseStatus.includes('finished')) {
+    return 'finished';
+  }
+  if (lowerCaseStatus.includes('live')) {
+    return 'live';
+  }
+  if (lowerCaseStatus.includes('postponed')) {
+    return 'postponed';
+  }
+  return 'scheduled';
+};
+
+exports.handler = async function(event, context) {
+  if (!API_KEY) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'API key is missing' }),
+    };
+  }
+
+  try {
+    for (let round = 1; round <= 38; round++) {
+      const url = API_URL.replace('{API_KEY}', API_KEY).replace('{round}', round);
+      const response = await axios.get(url);
+
+      const matches = response.data.events;
+
+      if (matches) {
+        for (const match of matches) {
+          const matchData = {
+            api_id: match.idEvent,
+            home_team: match.strHomeTeam,
+            away_team: match.strAwayTeam,
+            match_date: new Date(`${match.dateEvent}T${match.strTime}`).toISOString(),
+            status: getStatus(match.strStatus),
+            round: round,
+            season: match.intSeason,
+            home_score: match.intHomeScore,
+            away_score: match.intAwayScore,
+          };
+
+          await dbHelpers.upsertMatch(matchData);
+        }
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+    }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'Matches populated successfully' }),
+    };
+  } catch (error) {
+    console.error('Error populating matches:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Failed to populate matches' }),
+    };
+  }
+};
