@@ -1,5 +1,4 @@
 const { dbHelpers } = require('./lib/database-server.cjs');
-const { fetchLiveMatches } = require('./lib/api-client.cjs');
 
 const teamMapping = {
   "Palmeiras": "Palmeiras",
@@ -48,17 +47,6 @@ const getCurrentRound = () => {
 exports.handler = async function(event, context) {
   console.log('[fetch-matches] Function started');
 
-  try {
-    const liveMatches = await fetchLiveMatches();
-    if (liveMatches && liveMatches.length > 0) {
-      console.log(`[fetch-matches] Found ${liveMatches.length} live matches. Updating database...`);
-      await dbHelpers.updateMatchesFromApi(liveMatches);
-    }
-  } catch (error) {
-    console.error('[fetch-matches] Error fetching or updating live matches:', error);
-    // Non-fatal, so we don't return. The function can proceed with existing data.
-  }
-
   const { round } = event.queryStringParameters || {};
 
   try {
@@ -85,14 +73,12 @@ exports.handler = async function(event, context) {
 
     console.log(`[fetch-matches] Found ${matches.length} matches in database`);
 
-    if (matches.length === 0) {
-      console.log(`[fetch-matches] No matches found in database for round ${targetRound}. Fetching from API...`);
-      const { handler: populateMatches } = require('./populate-matches.cjs');
-      await populateMatches();
-      matches = await dbHelpers.getMatches(targetRound);
-      console.log(`[fetch-matches] Found ${matches.length} matches in database after fetching from API`);
-      console.log(`[fetch-matches] No matches found in database for round ${targetRound}.`);
-    }
+    // Always update matches from API for the current round
+    console.log(`[fetch-matches] Updating matches from API for round ${targetRound}...`);
+    const { handler: populateMatches } = require('./populate-matches.cjs');
+    await populateMatches({ queryStringParameters: { round: targetRound } });
+    matches = await dbHelpers.getMatches(targetRound);
+    console.log(`[fetch-matches] Found ${matches.length} matches in database after updating from API`);
 
     // Transform matches to match frontend expectations
     const transformedMatches = matches.map(match => ({

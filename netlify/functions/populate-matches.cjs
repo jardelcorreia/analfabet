@@ -26,8 +26,12 @@ exports.handler = async function(event, context) {
     };
   }
 
+  const { round: singleRound } = event.queryStringParameters || {};
+
   try {
-    for (let round = 1; round <= 38; round++) {
+    const roundsToFetch = singleRound ? [singleRound] : Array.from({ length: 38 }, (_, i) => i + 1);
+
+    for (const round of roundsToFetch) {
       const url = API_URL.replace('{API_KEY}', API_KEY).replace('{round}', round);
       const response = await axios.get(url);
 
@@ -50,7 +54,9 @@ exports.handler = async function(event, context) {
           await dbHelpers.upsertMatch(matchData);
         }
       }
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+      if (roundsToFetch.length > 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+      }
     }
 
     return {
