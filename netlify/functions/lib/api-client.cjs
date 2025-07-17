@@ -5,7 +5,7 @@ const API_URL = 'https://api.api-futebol.com.br/v1';
 
 const fetchLiveMatches = async () => {
   try {
-    const response = await fetch(`${API_URL}/campeonatos/10/partidas/ao-vivo`, {
+    const response = await fetch(`${API_URL}/ao-vivo`, {
       headers: {
         'Authorization': `Bearer ${API_TOKEN}`
       }
