@@ -1,4 +1,5 @@
 const { dbHelpers } = require('./lib/database-server.cjs');
+const { fetchLiveMatches } = require('./lib/api-client.cjs');
 
 const teamMapping = {
   "Palmeiras": "Palmeiras",
@@ -46,6 +47,17 @@ const getCurrentRound = () => {
 
 exports.handler = async function(event, context) {
   console.log('[fetch-matches] Function started');
+
+  try {
+    const liveMatches = await fetchLiveMatches();
+    if (liveMatches && liveMatches.length > 0) {
+      console.log(`[fetch-matches] Found ${liveMatches.length} live matches. Updating database...`);
+      await dbHelpers.updateMatchesFromApi(liveMatches);
+    }
+  } catch (error) {
+    console.error('[fetch-matches] Error fetching or updating live matches:', error);
+    // Non-fatal, so we don't return. The function can proceed with existing data.
+  }
 
   const { round } = event.queryStringParameters || {};
 

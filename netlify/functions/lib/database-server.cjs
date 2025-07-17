@@ -587,6 +587,33 @@ const dbHelpers = {
       ORDER BY name ASC
       LIMIT ${limit}
     `;
+  },
+
+  async updateMatchesFromApi(apiMatches) {
+    if (!apiMatches || apiMatches.length === 0) {
+      return;
+    }
+
+    for (const apiMatch of apiMatches) {
+      const { partida_id, placar, status } = apiMatch;
+      const homeScore = placar.split('x')[0].trim();
+      const awayScore = placar.split('x')[1].trim();
+
+      try {
+        await sql`
+          UPDATE matches
+          SET
+            home_score = ${homeScore},
+            away_score = ${awayScore},
+            status = ${status},
+            updated_at = CURRENT_TIMESTAMP
+          WHERE api_id = ${partida_id}
+        `;
+      } catch (error) {
+        console.error(`Error updating match with api_id ${partida_id}:`, error);
+        // Continue to the next match
+      }
+    }
   }
 };
 
