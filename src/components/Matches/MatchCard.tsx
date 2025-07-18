@@ -213,7 +213,11 @@ export const MatchCard: React.FC<MatchCardProps> = ({
           
           {!showBetForm ? (
             <button
-              onClick={() => setShowBetForm(true)}
+              onClick={() => {
+                setHomeScore(userBet?.home_score ?? null);
+                setAwayScore(userBet?.away_score ?? null);
+                setShowBetForm(true);
+              }}
               className="w-full px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
             >
               {userBet ? 'Alterar Aposta' : 'Fazer Aposta'}
