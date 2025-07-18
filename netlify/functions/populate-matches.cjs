@@ -11,6 +11,7 @@ const getStatus = (apiStatus) => {
 
   // Match finished/completed games
   if (lowerCaseStatus.includes('finished') ||
+      lowerCaseStatus.includes('match finished') ||
       lowerCaseStatus.includes('ft') ||
       lowerCaseStatus.includes('full time') ||
       lowerCaseStatus.includes('final') ||
