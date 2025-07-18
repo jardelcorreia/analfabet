@@ -3,7 +3,7 @@ import { Match } from '../types';
 // dbHelpers will no longer be directly used here for fetching matches.
 // import { dbHelpers } from '../lib/database';
 
-export const useMatches = (round?: number) => { // round prop is the user-selected round, or undefined for default
+export const useMatches = (round?: number | 'all') => { // round prop is the user-selected round, or undefined for default
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

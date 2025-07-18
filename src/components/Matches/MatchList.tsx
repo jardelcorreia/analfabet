@@ -13,7 +13,7 @@ interface MatchListProps {
 export const MatchList: React.FC<MatchListProps> = ({ league, userId }) => {
   // selectedRound is what the user picks, or undefined for the server's default.
   // It's passed as the `round` prop to useMatches.
-  const [selectedRound, setSelectedRound] = useState<number | undefined>();
+  const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>();
   const [userBets, setUserBets] = useState<Bet[]>([]);
 
   // useMatches now returns `displayedRound` which is the actual round data is for.
@@ -137,10 +137,17 @@ export const MatchList: React.FC<MatchListProps> = ({ league, userId }) => {
           <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
           <select
             value={selectedRound || ''}
-            onChange={(e) => setSelectedRound(e.target.value ? Number(e.target.value) : undefined)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === 'all') {
+                setSelectedRound('all');
+              } else {
+                setSelectedRound(Number(value));
+              }
+            }}
             className="flex-1 min-w-0 px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
           >
-            <option value="">Todas as rodadas</option>
+            <option value="all">Todas as rodadas</option>
             {rounds.map(round => (
               <option key={round} value={round}>
                 {round}ª Rodada

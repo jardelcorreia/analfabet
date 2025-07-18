@@ -27,58 +27,105 @@ const normalizeTeamName = (teamName) => {
   return teamMapping[teamName] || teamName;
 };
 
-// Function to determine current round based on date
-const getCurrentRound = () => {
-  const now = new Date();
-  const seasonStart = new Date('2025-04-12'); // Start of 2025 season
-  const weeksSinceStart = Math.floor((now - seasonStart) / (7 * 24 * 60 * 60 * 1000));
+const determineDefaultRound = (allMatches, today = new Date()) => {
+  const roundsData = {};
 
-  // Each round typically lasts about a week, with 38 rounds total
-  let currentRound = Math.min(Math.max(1, weeksSinceStart + 1), 38);
+  allMatches.forEach(match => {
+    if (!roundsData[match.round]) {
+      roundsData[match.round] = {
+        games: [],
+        allFinished: true,
+        startDate: new Date(match.match_date)
+      };
+    }
+    roundsData[match.round].games.push(match);
+    if (new Date(match.match_date) < roundsData[match.round].startDate) {
+      roundsData[match.round].startDate = new Date(match.match_date);
+    }
+    if (match.status !== 'finished') {
+      roundsData[match.round].allFinished = false;
+    }
+  });
 
-  // If we're before the season starts, return round 1
-  if (now < seasonStart) {
-    currentRound = 1;
+  const roundNumbers = Object.keys(roundsData).map(Number).sort((a, b) => a - b);
+  if (roundNumbers.length === 0) return 1;
+
+  today.setHours(0, 0, 0, 0);
+
+  let activeRounds = [];
+  let futureIncompleteRounds = [];
+
+  for (const roundNum of roundNumbers) {
+    const round = roundsData[roundNum];
+    const roundStartDate = new Date(round.startDate);
+    roundStartDate.setHours(0, 0, 0, 0);
+
+    if (roundStartDate <= today && !round.allFinished) {
+      activeRounds.push(roundNum);
+    } else if (roundStartDate > today && !round.allFinished) {
+      futureIncompleteRounds.push(roundNum);
+    }
   }
 
-  return currentRound;
+  let defaultRound;
+  if (activeRounds.length > 0) {
+    defaultRound = Math.max(...activeRounds);
+  } else if (futureIncompleteRounds.length > 0) {
+    defaultRound = Math.min(...futureIncompleteRounds);
+  } else {
+    defaultRound = Math.max(...roundNumbers);
+  }
+
+  const nextRound = defaultRound + 1;
+  if (roundsData[nextRound]) {
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextRoundStartDate = new Date(roundsData[nextRound].startDate);
+    nextRoundStartDate.setHours(0, 0, 0, 0);
+
+    if (nextRoundStartDate.getTime() === tomorrow.getTime()) {
+      defaultRound = nextRound;
+    }
+  }
+
+  return defaultRound;
 };
 
 exports.handler = async function(event, context) {
   console.log('[fetch-matches] Function started');
 
   const { round } = event.queryStringParameters || {};
+  const today = new Date();
 
   try {
-    // Determine which round to fetch
-    let targetRound;
-    if (round) {
-      targetRound = parseInt(round, 10);
-      if (isNaN(targetRound) || targetRound < 1 || targetRound > 38) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({ error: 'Invalid round number. Must be between 1 and 38.' }),
-          headers: { 'Content-Type': 'application/json' }
-        };
-      }
-    } else {
-      // If no round specified, use current round
-      targetRound = getCurrentRound();
+    let allMatches = await dbHelpers.getMatches();
+    if (!allMatches || allMatches.length === 0) {
+      console.log('[fetch-matches] No matches in DB, attempting to populate for all rounds...');
+      const { handler: populateMatches } = require('./populate-matches.cjs');
+      await populateMatches({ queryStringParameters: {} }); // Populate all rounds
+      allMatches = await dbHelpers.getMatches();
     }
 
-    console.log(`[fetch-matches] Fetching matches for round: ${targetRound}`);
+    let targetRound;
+    let matches;
 
-    // Fetch matches from database
-    let matches = await dbHelpers.getMatches(targetRound);
-
-    console.log(`[fetch-matches] Found ${matches.length} matches in database`);
-
-    // Always update matches from API for the current round
-    console.log(`[fetch-matches] Updating matches from API for round ${targetRound}...`);
-    const { handler: populateMatches } = require('./populate-matches.cjs');
-    await populateMatches({ queryStringParameters: { round: targetRound } });
-    matches = await dbHelpers.getMatches(targetRound);
-    console.log(`[fetch-matches] Found ${matches.length} matches in database after updating from API`);
+    if (round === 'all') {
+      matches = allMatches;
+      targetRound = 'all';
+    } else if (round) {
+      targetRound = parseInt(round, 10);
+      if (isNaN(targetRound) || targetRound < 1 || targetRound > 38) {
+        return { statusCode: 400, body: JSON.stringify({ error: 'Invalid round number.' }) };
+      }
+      console.log(`[fetch-matches] Updating and fetching matches for specific round: ${targetRound}`);
+      const { handler: populateMatches } = require('./populate-matches.cjs');
+      await populateMatches({ queryStringParameters: { round: targetRound } });
+      matches = allMatches.filter(m => m.round === targetRound);
+    } else {
+      targetRound = determineDefaultRound(allMatches, today);
+      console.log(`[fetch-matches] No round specified, determined default round: ${targetRound}`);
+      matches = allMatches.filter(m => m.round === targetRound);
+    }
 
     // Transform matches to match frontend expectations
     const transformedMatches = matches.map(match => ({
