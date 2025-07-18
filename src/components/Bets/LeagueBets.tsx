@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useLeagueBets } from '../../hooks/useLeagueBets';
 import { RoundSelector } from '../Ranking/RoundSelector';
 import { Bet, League } from '../../types';
@@ -12,9 +12,17 @@ interface LeagueBetsProps {
 }
 
 export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
-  const [selectedRound, setSelectedRound] = useState<number | undefined>(1);
+  const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>();
   const [expandedPlayers, setExpandedPlayers] = useState<Set<string>>(new Set());
-  const { bets, loading } = useLeagueBets(league.id, selectedRound);
+  const { bets, loading, displayedRound } = useLeagueBets(league.id, selectedRound);
+
+  useEffect(() => {
+    if (displayedRound !== undefined && selectedRound !== displayedRound) {
+      if (selectedRound === undefined) {
+        setSelectedRound(displayedRound);
+      }
+    }
+  }, [displayedRound, selectedRound]);
 
   const betsByPlayer = useMemo(() => {
     const now = new Date();
