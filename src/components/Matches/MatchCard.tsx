@@ -146,7 +146,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
         </div>
         
         <div className="flex-shrink-0 mx-2 sm:mx-4">
-          {match.status === 'finished' && match.home_score !== null && match.away_score !== null ? (
+          {(match.status === 'finished' || match.status === 'live') && match.home_score !== null && match.away_score !== null ? (
             <div className="text-xl sm:text-2xl font-bold text-gray-800">
               {match.home_score} - {match.away_score}
             </div>
