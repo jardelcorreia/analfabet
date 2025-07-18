@@ -5,16 +5,43 @@ const API_KEY = process.env.SPORTSDB_API_KEY; // Replace with your actual API ke
 const API_URL = 'https://www.thesportsdb.com/api/v1/json/{API_KEY}/eventsround.php?id=4351&r={round}&s=2025'; // 4351 is the ID for Brasileirão Série A 2025
 
 const getStatus = (apiStatus) => {
+  if (!apiStatus) return 'unknown';
+
   const lowerCaseStatus = apiStatus.toLowerCase();
-  if (lowerCaseStatus.includes('finished')) {
+
+  // Match finished/completed games
+  if (lowerCaseStatus.includes('finished') ||
+      lowerCaseStatus.includes('ft') ||
+      lowerCaseStatus.includes('full time') ||
+      lowerCaseStatus.includes('final') ||
+      lowerCaseStatus.includes('complete')) {
     return 'finished';
   }
-  if (lowerCaseStatus.includes('live')) {
+
+  // Match live/ongoing games
+  if (lowerCaseStatus.includes('live') ||
+      lowerCaseStatus.includes('1h') ||
+      lowerCaseStatus.includes('2h') ||
+      lowerCaseStatus.includes('ht') ||
+      lowerCaseStatus.includes('half time') ||
+      lowerCaseStatus.includes('et') ||
+      lowerCaseStatus.includes('extra time') ||
+      lowerCaseStatus.includes('pen') ||
+      lowerCaseStatus.includes('penalties') ||
+      lowerCaseStatus.includes('in play')) {
     return 'live';
   }
-  if (lowerCaseStatus.includes('postponed')) {
+
+  // Match postponed/cancelled games
+  if (lowerCaseStatus.includes('postponed') ||
+      lowerCaseStatus.includes('cancelled') ||
+      lowerCaseStatus.includes('canceled') ||
+      lowerCaseStatus.includes('suspended') ||
+      lowerCaseStatus.includes('delayed')) {
     return 'postponed';
   }
+
+  // Default to scheduled for upcoming games
   return 'scheduled';
 };
 
