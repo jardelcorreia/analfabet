@@ -164,31 +164,26 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
                             </span>
                           </div>
 
-                          {/* Detalhes da Partida - Layout Mobile Otimizado */}
-                          <div className="space-y-1">
-                            {/* Casa */}
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs sm:text-sm text-gray-800 truncate flex-1 pr-2 font-medium">
-                                {timesInfo[bet.match.home_team]?.nome || bet.match.home_team}
-                              </span>
-                              <span className="text-sm sm:text-base font-bold text-gray-700 flex-shrink-0 min-w-[24px] text-center">
-                                {bet.home_score}
-                              </span>
-                            </div>
-
-                            {/* Visitante */}
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs sm:text-sm text-gray-800 truncate flex-1 pr-2 font-medium">
-                                {timesInfo[bet.match.away_team]?.nome || bet.match.away_team}
-                              </span>
-                              <span className="text-sm sm:text-base font-bold text-gray-700 flex-shrink-0 min-w-[24px] text-center">
-                                {bet.away_score}
-                              </span>
-                            </div>
+                          {/* Detalhes da Partida - Layout Horizontal */}
+                          <div className="flex items-center justify-center space-x-2">
+                            <span className="text-xs sm:text-sm font-bold text-gray-800">
+                              {timesInfo[bet.match.home_team]?.abrev || bet.match.home_team.substring(0, 3).toUpperCase()}
+                            </span>
+                            <span className="text-sm sm:text-base font-bold text-gray-700">
+                              {bet.home_score}
+                            </span>
+                            <span className="text-xs text-gray-500">-</span>
+                            <span className="text-sm sm:text-base font-bold text-gray-700">
+                              {bet.away_score}
+                            </span>
+                            <span className="text-xs sm:text-sm font-bold text-gray-800">
+                              {timesInfo[bet.match.away_team]?.abrev || bet.match.away_team.substring(0, 3).toUpperCase()}
+                            </span>
+                          </div>
 
                             {/* Resultado Real - Mobile Otimizado */}
                             {bet.match.status === 'finished' && bet.match.home_score !== null && (
-                              <div className="text-xs text-gray-500 pt-1 border-t border-gray-200">
+                              <div className="text-xs text-gray-500 pt-1 border-t border-gray-200 mt-2">
                                 <div className="flex items-center justify-between">
                                   <span>Real: {bet.match.home_score}-{bet.match.away_score}</span>
                                   {bet.points !== null && (
@@ -200,7 +195,6 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
                                 </div>
                               </div>
                             )}
-                          </div>
                         </div>
                       );
                     })}
