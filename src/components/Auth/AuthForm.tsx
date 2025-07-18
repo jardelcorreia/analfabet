@@ -8,23 +8,20 @@ interface AuthFormProps {
 
 export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [identifier, setIdentifier] = useState(''); // Para login: email ou nome
-  const [email, setEmail] = useState(''); // Para signup: apenas email
+  const [identifier, setIdentifier] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [rememberMe, setRememberMe] = useState(true); // Default to true for better UX
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Função para detectar se o input é um email
   const isEmailFormat = (input: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(input);
   };
 
-  // Função para validar o nome de usuário
   const isValidUsername = (username: string): boolean => {
-    // Nome deve ter pelo menos 2 caracteres e não conter @ ou espaços
     return username.length >= 2 && !username.includes('@') && !username.includes(' ');
   };
 
@@ -35,19 +32,16 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
 
     try {
       if (isLogin) {
-        // Validação básica para login
         if (!identifier.trim()) {
           setError('Email ou nome de usuário é obrigatório');
           return;
         }
 
-        // Validação do formato se for email
         if (isEmailFormat(identifier) && !isEmailFormat(identifier)) {
           setError('Formato de email inválido');
           return;
         }
 
-        // Validação do nome de usuário se não for email
         if (!isEmailFormat(identifier) && !isValidUsername(identifier)) {
           setError('Nome de usuário deve ter pelo menos 2 caracteres e não conter @ ou espaços');
           return;
@@ -55,7 +49,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
 
         await onSignIn(identifier.trim(), password, rememberMe);
       } else {
-        // Validações para signup
         if (!email.trim()) {
           setError('Email é obrigatório');
           return;
@@ -84,19 +77,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
         await onSignUp(email.trim(), password, name.trim());
       }
       
-      // Set remember me preference after successful auth
       const { setRememberMe: setRememberMeStorage } = await import('../../lib/storage');
       setRememberMeStorage(rememberMe);
     } catch (err: any) {
-      console.error("AuthForm caught error object:", err);
-      if (err && typeof err === 'object') {
-        console.error("AuthForm error name:", (err as Error).name);
-        console.error("AuthForm error message:", (err as Error).message);
-        console.error("AuthForm error stack:", (err as Error).stack);
-      } else {
-        console.error("AuthForm caught a non-object error:", err);
-      }
-
+      console.error("AuthForm caught error:", err);
       let displayMessage = 'Erro desconhecido.';
       if (typeof err === 'string') {
         displayMessage = err;
@@ -112,14 +96,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
   const handleModeSwitch = () => {
     setIsLogin(!isLogin);
     setError(null);
-    // Limpar campos ao trocar de modo
     setIdentifier('');
     setEmail('');
     setName('');
     setPassword('');
   };
 
-  // Determinar qual ícone usar no campo de login
   const getLoginIcon = () => {
     if (!identifier) return AtSign;
     return isEmailFormat(identifier) ? Mail : User;
@@ -128,38 +110,37 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
   const LoginIcon = getLoginIcon();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-400 via-green-500 to-yellow-400 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-400 via-green-500 to-yellow-400 flex items-center justify-center p-3 sm:p-4 md:p-6">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 w-full max-w-sm sm:max-w-md mx-auto">
+        <div className="text-center mb-6 sm:mb-8">
           <div className="flex items-center justify-center mb-4">
-            <Trophy className="w-12 h-12 text-green-600 mr-2" />
-            <h1 className="text-3xl font-bold text-gray-800">AnalfaBet</h1>
+            <Trophy className="w-10 h-10 sm:w-12 sm:h-12 text-green-600 mr-2" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">AnalfaBet</h1>
           </div>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+          <div className="bg-red-50 border border-red-300 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded-lg mb-4 text-sm">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {isLogin ? (
-            // Campo para login (email ou nome)
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email ou Nome de Usuário
               </label>
               <div className="relative">
-                <LoginIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <LoginIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
                   placeholder="seu@email.com ou seu_nome"
                   required
                 />
@@ -169,19 +150,18 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
               </p>
             </div>
           ) : (
-            // Campos para signup (separados)
             <>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Nome de Usuário
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
                     placeholder="seu_nome"
                     required
                     minLength={2}
@@ -197,12 +177,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
                   Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
                     placeholder="seu@email.com"
                     required
                   />
@@ -216,12 +196,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
               Senha
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
                 placeholder="Sua senha"
                 required
                 minLength={6}
@@ -251,16 +231,17 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            onClick={handleSubmit}
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 sm:py-3.5 px-4 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base"
           >
             {loading ? 'Carregando...' : isLogin ? 'Entrar' : 'Criar conta'}
           </button>
-        </form>
+        </div>
 
         <div className="mt-6 text-center">
           <button
             onClick={handleModeSwitch}
-            className="text-green-600 hover:text-green-700 font-medium transition-colors"
+            className="text-green-600 hover:text-green-700 font-medium transition-colors text-sm sm:text-base hover:underline"
           >
             {isLogin ? 'Não tem conta? Criar uma' : 'Já tem conta? Entrar'}
           </button>
