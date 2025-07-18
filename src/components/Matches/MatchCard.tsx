@@ -234,8 +234,9 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                     max="20"
                     value={homeScore ?? ''}
                     onChange={(e) => {
-                      setHomeScore(Number(e.target.value));
-                      if (e.target.value.length > 0) {
+                      const value = e.target.value;
+                      setHomeScore(value === '' ? null : Number(value));
+                      if (value.length > 0) {
                         awayScoreInputRef.current?.focus();
                       }
                     }}
@@ -255,7 +256,10 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                     min="0"
                     max="20"
                     value={awayScore ?? ''}
-                    onChange={(e) => setAwayScore(Number(e.target.value))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setAwayScore(value === '' ? null : Number(value));
+                    }}
                     ref={awayScoreInputRef}
                     className="w-12 sm:w-16 px-1 sm:px-2 py-1 sm:py-2 border border-gray-300 rounded text-center text-sm sm:text-base"
                     required
