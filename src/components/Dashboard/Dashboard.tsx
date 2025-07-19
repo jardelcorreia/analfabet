@@ -26,7 +26,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const { ranking, loading: rankingLoading, displayedRound } = useRanking(selectedLeague?.id || '', selectedRound);
 
   useEffect(() => {
-    if (displayedRound !== undefined && selectedRound !== displayedRound) {
+    if (displayedRound !== undefined && selectedRound !== displayedRound && selectedRound !== 'all') {
       if (selectedRound === undefined) {
         setSelectedRound(displayedRound);
       }

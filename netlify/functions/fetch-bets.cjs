@@ -13,14 +13,16 @@ exports.handler = async function(event, context) {
 
   try {
     let targetRound;
-    if (round && round !== 'all') {
+    if (round === 'all') {
+      targetRound = 'all';
+    } else if (round) {
       targetRound = parseInt(round, 10);
-    } else if (round !== 'all') {
+    } else {
       const allMatches = await dbHelpers.getMatches();
       targetRound = determineDefaultRound(allMatches);
     }
 
-    const bets = await dbHelpers.getUserBetsWithMatches(userId, leagueId, targetRound);
+    const bets = await dbHelpers.getUserBetsWithMatches(userId, leagueId, targetRound === 'all' ? null : targetRound);
     return {
       statusCode: 200,
       body: JSON.stringify({ bets, determinedRound: targetRound }),

@@ -17,7 +17,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
   const { bets, loading, displayedRound } = useLeagueBets(league.id, selectedRound);
 
   useEffect(() => {
-    if (displayedRound !== undefined && selectedRound !== displayedRound) {
+    if (displayedRound !== undefined && selectedRound !== displayedRound && selectedRound !== 'all') {
       if (selectedRound === undefined) {
         setSelectedRound(displayedRound);
       }

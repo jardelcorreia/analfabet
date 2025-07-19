@@ -13,17 +13,19 @@ exports.handler = async function(event, context) {
 
   try {
     let targetRound;
-    if (round && round !== 'all') {
+    if (round === 'all') {
+      targetRound = 'all';
+    } else if (round) {
       targetRound = parseInt(round, 10);
-    } else if (round !== 'all') {
+    } else {
       const allMatches = await dbHelpers.getMatches();
       targetRound = determineDefaultRound(allMatches);
     }
 
-    const ranking = await dbHelpers.getLeagueRanking(leagueId, targetRound);
+    const ranking = await dbHelpers.getLeagueRanking(leagueId, targetRound === 'all' ? null : targetRound);
     
     // If viewing all rounds, ensure rounds_won is calculated
-    if (!targetRound) {
+    if (targetRound === 'all') {
       // Trigger rounds won calculation for this league if needed
       try {
         await dbHelpers.calculateDetailedRoundsWon(leagueId);

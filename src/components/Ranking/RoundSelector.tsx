@@ -50,8 +50,8 @@ const arrowStyles = cva('w-4 h-4', {
 });
 
 interface RoundSelectorProps extends VariantProps<typeof roundSelectorStyles> {
-  selectedRound: number | undefined;
-  onRoundChange: (round: number | undefined) => void;
+  selectedRound: number | 'all' | undefined;
+  onRoundChange: (round: number | 'all' | undefined) => void;
   totalRounds: number;
   className?: string;
 }
@@ -73,16 +73,28 @@ export const RoundSelector: React.FC<RoundSelectorProps> = ({
       <div className="relative">
         <select
           id="round-selector"
-          value={selectedRound || ''}
-          onChange={(e) => onRoundChange(e.target.value ? parseInt(e.target.value, 10) : undefined)}
+          value={selectedRound === 'all' ? 'all' : selectedRound || ''}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === 'all') {
+              onRoundChange('all');
+            } else if (value === '') {
+              onRoundChange(undefined);
+            } else {
+              onRoundChange(parseInt(value, 10));
+            }
+          }}
           className={selectStyles({ variant })}
         >
           <option value="" className="text-gray-900 bg-white">
             📊 Todas as rodadas
           </option>
+          <option value="all" className="text-gray-900 bg-white">
+            🏆 Todas as rodadas (completo)
+          </option>
           {rounds.map((round) => (
             <option key={round} value={round} className="text-gray-900 bg-white">
-              🏆 Rodada {round}
+              ⚽ Rodada {round}
             </option>
           ))}
         </select>
@@ -95,7 +107,8 @@ export const RoundSelector: React.FC<RoundSelectorProps> = ({
       {variant === 'default' && (
         <div className="sm:hidden">
           <p className="text-xs text-gray-500 mt-1">
-            {selectedRound ? `Visualizando rodada ${selectedRound}` : 'Visualizando todas as rodadas'}
+            {selectedRound === 'all' ? 'Visualizando todas as rodadas' : 
+             selectedRound ? `Visualizando rodada ${selectedRound}` : 'Visualizando rodada atual'}
           </p>
         </div>
       )}

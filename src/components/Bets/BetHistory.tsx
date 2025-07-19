@@ -18,7 +18,7 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'finished'>('all');
 
   useEffect(() => {
-    if (displayedRound !== undefined && selectedRound !== displayedRound) {
+    if (displayedRound !== undefined && selectedRound !== displayedRound && selectedRound !== 'all') {
       if (selectedRound === undefined) {
         setSelectedRound(displayedRound);
       }
@@ -70,7 +70,7 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
           <div className="flex-1">
             <RoundSelector
               selectedRound={selectedRound}
-              onRoundChange={(round) => setSelectedRound(round as number | 'all' | undefined)}
+              onRoundChange={setSelectedRound}
               totalRounds={38}
               variant="default"
             />
@@ -109,7 +109,8 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
         <div className="sm:hidden">
           <div className="flex items-center justify-between text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-lg">
             <span>
-              {selectedRound ? `Rodada ${selectedRound}` : 'Todas as rodadas'}
+              {selectedRound === 'all' ? 'Todas as rodadas' : 
+               selectedRound ? `Rodada ${selectedRound}` : 'Rodada atual'}
             </span>
             <span>
               {filter === 'all' ? 'Todas as apostas' :
