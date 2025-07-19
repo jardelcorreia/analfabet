@@ -244,138 +244,139 @@ export const RankingTable: React.FC<RankingTableProps> = ({
                 : 0;
 
               return (
-                <tr
-                  key={userStat.user_id}
-                  className={`border transition-all duration-200 ${getRowClass(userStat.user_id, position)}`}
-                >
-                  <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      {getMedalIcon(position)}
-                    </div>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
-                        {userStat.user.name.charAt(0).toUpperCase()}
+                <React.Fragment key={userStat.user_id}>
+                  <tr
+                    className={`border transition-all duration-200 ${getRowClass(userStat.user_id, position)}`}
+                  >
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {getMedalIcon(position)}
                       </div>
-                      <div className="ml-3 sm:ml-4">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium text-gray-900">
-                            {userStat.user.name}
-                          </span>
-                          {userStat.user_id === currentUserId && (
-                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                              Você
-                            </span>
-                          )}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+                          {userStat.user.name.charAt(0).toUpperCase()}
                         </div>
-                        <div className="text-sm text-gray-500 hidden sm:block">
-                          {userStat.user.email}
-                        </div>
-                        {/* Mobile: Show rounds won as a small badge */}
-                        <div className="flex items-center space-x-2 text-xs text-gray-600 mt-1 sm:hidden">
-                          <div className="flex items-center space-x-1">
-                            <span className="hidden sm:inline">•</span>
-                            <span className="text-purple-600 flex-shrink-0">{userStat.rounds_won || 0}R</span>
-                            <Crown className="w-3 h-3 text-purple-500" />
-                            <span className="truncate">
-                              {userStat.rounds_won_list && userStat.rounds_won_list.length > 0 
-                                ? `R${userStat.rounds_won_list.slice(0, 3).join(',')}`
-                                : 'Nenhuma'
-                              }
-                              {userStat.rounds_won_list && userStat.rounds_won_list.length > 3 && '...'}
+                        <div className="ml-3 sm:ml-4">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-gray-900">
+                              {userStat.user.name}
                             </span>
+                            {userStat.user_id === currentUserId && (
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                Você
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500 hidden sm:block">
+                            {userStat.user.email}
+                          </div>
+                          {/* Mobile: Show rounds won as a small badge */}
+                          <div className="flex items-center space-x-2 text-xs text-gray-600 mt-1 sm:hidden">
+                            <div className="flex items-center space-x-1">
+                              <span className="hidden sm:inline">•</span>
+                              <span className="text-purple-600 flex-shrink-0">{userStat.rounds_won || 0}R</span>
+                              <Crown className="w-3 h-3 text-purple-500" />
+                              <span className="truncate">
+                                {userStat.rounds_won_list && userStat.rounds_won_list.length > 0
+                                  ? `R${userStat.rounds_won_list.slice(0, 3).join(',')}`
+                                  : 'Nenhuma'
+                                }
+                                {userStat.rounds_won_list && userStat.rounds_won_list.length > 3 && '...'}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center">
-                      <div className="flex items-center space-x-1 bg-yellow-100 rounded-full px-3 py-1">
-                        <Trophy className="w-4 h-4 text-yellow-600" />
-                        <span className="text-sm font-bold text-yellow-800">
-                          {userStat.total_points}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center">
-                      <div className="flex items-center space-x-1 bg-green-100 rounded-full px-3 py-1">
-                        <Target className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-800">
-                          {userStat.exact_scores}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden lg:table-cell">
-                    <div className="flex items-center justify-center">
-                      <div className="flex items-center space-x-1 bg-purple-100 rounded-full px-3 py-1 cursor-pointer hover:bg-purple-200 transition-colors"
-                           onClick={() => toggleRowExpansion(userStat.user_id)}>
-                        <Crown className="w-4 h-4 text-purple-600" />
-                        <span className="text-sm font-medium text-purple-800">
-                          {userStat.rounds_won || 0}
-                        </span>
-                        {userStat.rounds_won > 0 && (
-                          expandedRows.has(userStat.user_id) 
-                            ? <ChevronUp className="w-3 h-3 text-purple-600" />
-                            : <ChevronDown className="w-3 h-3 text-purple-600" />
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden md:table-cell">
-                    <span className="text-sm font-medium text-gray-900">
-                      {userStat.total_bets}
-                    </span>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden sm:table-cell">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getAccuracyColor(accuracy)}`}>
-                      {accuracy.toFixed(1)}%
-                    </span>
-                  </td>
-                </tr>
-                {/* Expanded row showing detailed rounds won */}
-                {expandedRows.has(userStat.user_id) && userStat.rounds_won > 0 && (
-                  <tr className="bg-purple-50 border-l-4 border-purple-200">
-                    <td colSpan={7} className="px-4 sm:px-6 py-4">
-                      <div className="flex flex-col space-y-3">
-                        <div className="flex items-center space-x-2">
-                          <Crown className="w-5 h-5 text-purple-600" />
-                          <span className="font-semibold text-purple-800">
-                            Rodadas vencidas por {userStat.user.name}:
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2">
-                          {userStat.rounds_won_list && userStat.rounds_won_list.map(round => (
-                            <div
-                              key={round}
-                              className="flex items-center justify-center bg-purple-100 hover:bg-purple-200 rounded-lg px-3 py-2 transition-colors cursor-pointer"
-                              title={`Rodada ${round} - Clique para ver detalhes`}
-                            >
-                              <span className="text-sm font-medium text-purple-800">
-                                R{round}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="text-xs text-purple-600 flex items-center space-x-1">
-                          <Info className="w-4 h-4" />
-                          <span>
-                            Total: {userStat.rounds_won} rodada{userStat.rounds_won !== 1 ? 's' : ''} vencida{userStat.rounds_won !== 1 ? 's' : ''}
-                            {userStat.rounds_won_list && userStat.rounds_won_list.length > 0 && (
-                              <span className="ml-2">
-                                ({formatRoundsWonList(userStat.rounds_won_list)})
-                              </span>
-                            )}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center">
+                        <div className="flex items-center space-x-1 bg-yellow-100 rounded-full px-3 py-1">
+                          <Trophy className="w-4 h-4 text-yellow-600" />
+                          <span className="text-sm font-bold text-yellow-800">
+                            {userStat.total_points}
                           </span>
                         </div>
                       </div>
                     </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center">
+                        <div className="flex items-center space-x-1 bg-green-100 rounded-full px-3 py-1">
+                          <Target className="w-4 h-4 text-green-600" />
+                          <span className="text-sm font-medium text-green-800">
+                            {userStat.exact_scores}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden lg:table-cell">
+                      <div className="flex items-center justify-center">
+                        <div className="flex items-center space-x-1 bg-purple-100 rounded-full px-3 py-1 cursor-pointer hover:bg-purple-200 transition-colors"
+                             onClick={() => toggleRowExpansion(userStat.user_id)}>
+                          <Crown className="w-4 h-4 text-purple-600" />
+                          <span className="text-sm font-medium text-purple-800">
+                            {userStat.rounds_won || 0}
+                          </span>
+                          {userStat.rounds_won > 0 && (
+                            expandedRows.has(userStat.user_id)
+                              ? <ChevronUp className="w-3 h-3 text-purple-600" />
+                              : <ChevronDown className="w-3 h-3 text-purple-600" />
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden md:table-cell">
+                      <span className="text-sm font-medium text-gray-900">
+                        {userStat.total_bets}
+                      </span>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden sm:table-cell">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getAccuracyColor(accuracy)}`}>
+                        {accuracy.toFixed(1)}%
+                      </span>
+                    </td>
                   </tr>
-                )}
+                  {/* Expanded row showing detailed rounds won */}
+                  {expandedRows.has(userStat.user_id) && userStat.rounds_won > 0 && (
+                    <tr className="bg-purple-50 border-l-4 border-purple-200">
+                      <td colSpan={7} className="px-4 sm:px-6 py-4">
+                        <div className="flex flex-col space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <Crown className="w-5 h-5 text-purple-600" />
+                            <span className="font-semibold text-purple-800">
+                              Rodadas vencidas por {userStat.user.name}:
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2">
+                            {userStat.rounds_won_list && userStat.rounds_won_list.map(round => (
+                              <div
+                                key={round}
+                                className="flex items-center justify-center bg-purple-100 hover:bg-purple-200 rounded-lg px-3 py-2 transition-colors cursor-pointer"
+                                title={`Rodada ${round} - Clique para ver detalhes`}
+                              >
+                                <span className="text-sm font-medium text-purple-800">
+                                  R{round}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="text-xs text-purple-600 flex items-center space-x-1">
+                            <Info className="w-4 h-4" />
+                            <span>
+                              Total: {userStat.rounds_won} rodada{userStat.rounds_won !== 1 ? 's' : ''} vencida{userStat.rounds_won !== 1 ? 's' : ''}
+                              {userStat.rounds_won_list && userStat.rounds_won_list.length > 0 && (
+                                <span className="ml-2">
+                                  ({formatRoundsWonList(userStat.rounds_won_list)})
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               );
             })}
           </tbody>
