@@ -58,6 +58,7 @@ export interface UserStats {
   exact_scores: number;
   total_bets: number;
   correct_results: number;
+  rounds_won: number;
   user: User;
 }
 

@@ -190,6 +190,9 @@ export const RankingTable: React.FC<RankingTableProps> = ({
               <th className="px-4 sm:px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Placares Exatos
               </th>
+              <th className="px-4 sm:px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                Rodadas Vencidas
+              </th>
               <th className="px-4 sm:px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                 Apostas
               </th>
@@ -234,6 +237,15 @@ export const RankingTable: React.FC<RankingTableProps> = ({
                         <div className="text-sm text-gray-500 hidden sm:block">
                           {userStat.user.email}
                         </div>
+                        {/* Mobile: Show rounds won as a small badge */}
+                        <div className="flex items-center space-x-2 text-xs text-gray-600 mt-1 sm:hidden">
+                          <div className="flex items-center space-x-1">
+                            <span className="hidden sm:inline">•</span>
+                            <span className="text-purple-600 flex-shrink-0">{userStat.rounds_won || 0}R</span>
+                            <Crown className="w-3 h-3 text-purple-500" />
+                            <span>{userStat.rounds_won || 0} rodadas</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -253,6 +265,16 @@ export const RankingTable: React.FC<RankingTableProps> = ({
                         <Target className="w-4 h-4 text-green-600" />
                         <span className="text-sm font-medium text-green-800">
                           {userStat.exact_scores}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden lg:table-cell">
+                    <div className="flex items-center justify-center">
+                      <div className="flex items-center space-x-1 bg-purple-100 rounded-full px-3 py-1">
+                        <Crown className="w-4 h-4 text-purple-600" />
+                        <span className="text-sm font-medium text-purple-800">
+                          {userStat.rounds_won || 0}
                         </span>
                       </div>
                     </div>

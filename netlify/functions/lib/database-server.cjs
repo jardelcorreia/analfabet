@@ -443,6 +443,7 @@ const dbHelpers = {
       return result.map(row => ({
         ...row,
         league_id: leagueId,
+        rounds_won: 0, // For specific round view, rounds_won doesn't apply
         user: {
           id: row.user_id,
           name: row.user_name,
@@ -463,7 +464,7 @@ const dbHelpers = {
       FROM user_stats us
       INNER JOIN users u ON us.user_id = u.id
       WHERE us.league_id = ${leagueId}
-      ORDER BY us.total_points DESC, us.exact_scores DESC
+      ORDER BY us.total_points DESC, us.rounds_won DESC, us.exact_scores DESC
     `;
 
     return result.map(row => ({
@@ -473,6 +474,7 @@ const dbHelpers = {
       exact_scores: row.exact_scores,
       total_bets: row.total_bets,
       correct_results: row.correct_results,
+      rounds_won: row.rounds_won || 0,
       user: {
         id: row.user_id,
         name: row.user_name,
