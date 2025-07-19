@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthUser } from '../../lib/auth';
 import { League } from '../../types';
 import { Header } from '../Layout/Header';
@@ -20,10 +20,18 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [activeTab, setActiveTab] = useState('leagues');
   const [selectedLeague, setSelectedLeague] = useState<League | null>(null);
-  const [selectedRound, setSelectedRound] = useState<number | undefined>(undefined);
+  const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>(undefined);
   
   const { leagues, loading: leaguesLoading, createLeague, joinLeague } = useLeagues(user.id);
-  const { ranking, loading: rankingLoading } = useRanking(selectedLeague?.id || '', selectedRound);
+  const { ranking, loading: rankingLoading, displayedRound } = useRanking(selectedLeague?.id || '', selectedRound);
+
+  useEffect(() => {
+    if (displayedRound !== undefined && selectedRound !== displayedRound) {
+      if (selectedRound === undefined) {
+        setSelectedRound(displayedRound);
+      }
+    }
+  }, [displayedRound, selectedRound]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);

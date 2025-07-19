@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trophy, Target, Calendar, Filter } from 'lucide-react';
 import { League, Bet } from '../../types';
 import { useBets } from '../../hooks/useBets';
@@ -13,9 +13,17 @@ interface BetHistoryProps {
 }
 
 export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
-  const [selectedRound, setSelectedRound] = useState<number | undefined>(undefined);
-  const { bets, loading } = useBets(league.id, userId, selectedRound);
+  const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>(undefined);
+  const { bets, loading, displayedRound } = useBets(league.id, userId, selectedRound);
   const [filter, setFilter] = useState<'all' | 'pending' | 'finished'>('all');
+
+  useEffect(() => {
+    if (displayedRound !== undefined && selectedRound !== displayedRound) {
+      if (selectedRound === undefined) {
+        setSelectedRound(displayedRound);
+      }
+    }
+  }, [displayedRound, selectedRound]);
 
   const filteredBets = bets.filter(bet => {
     switch (filter) {
@@ -62,7 +70,7 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
           <div className="flex-1">
             <RoundSelector
               selectedRound={selectedRound}
-              onRoundChange={setSelectedRound}
+              onRoundChange={(round) => setSelectedRound(round as number | 'all' | undefined)}
               totalRounds={38}
               variant="default"
             />

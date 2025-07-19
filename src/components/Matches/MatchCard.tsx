@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Clock, Target, Trophy, Calendar } from 'lucide-react';
 import { Match, Bet } from '../../types';
 import { format } from 'date-fns';
@@ -19,9 +19,10 @@ export const MatchCard: React.FC<MatchCardProps> = ({
   canBet
 }) => {
   const [showBetForm, setShowBetForm] = useState(false);
-  const [homeScore, setHomeScore] = useState(userBet?.home_score || 0);
-  const [awayScore, setAwayScore] = useState(userBet?.away_score || 0);
+  const [homeScore, setHomeScore] = useState<number | null>(userBet?.home_score ?? null);
+  const [awayScore, setAwayScore] = useState<number | null>(userBet?.away_score ?? null);
   const [loading, setLoading] = useState(false);
+  const awayScoreInputRef = useRef<HTMLInputElement>(null);
 
   // Check if betting is allowed (client-side validation for UX)
   const isBettingAllowed = () => {
@@ -64,6 +65,11 @@ export const MatchCard: React.FC<MatchCardProps> = ({
       return;
     }
     
+    if (homeScore === null || awayScore === null) {
+      alert('Preencha o placar corretamente.');
+      return;
+    }
+
     setLoading(true);
     try {
       await onPlaceBet(homeScore, awayScore);
@@ -140,7 +146,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
         </div>
         
         <div className="flex-shrink-0 mx-2 sm:mx-4">
-          {match.status === 'finished' && match.home_score !== null && match.away_score !== null ? (
+          {(match.status === 'finished' || match.status === 'live') && match.home_score !== null && match.away_score !== null ? (
             <div className="text-xl sm:text-2xl font-bold text-gray-800">
               {match.home_score} - {match.away_score}
             </div>
@@ -207,7 +213,11 @@ export const MatchCard: React.FC<MatchCardProps> = ({
           
           {!showBetForm ? (
             <button
-              onClick={() => setShowBetForm(true)}
+              onClick={() => {
+                setHomeScore(userBet?.home_score ?? null);
+                setAwayScore(userBet?.away_score ?? null);
+                setShowBetForm(true);
+              }}
               className="w-full px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
             >
               {userBet ? 'Alterar Aposta' : 'Fazer Aposta'}
@@ -226,8 +236,14 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                     type="number"
                     min="0"
                     max="20"
-                    value={homeScore}
-                    onChange={(e) => setHomeScore(Number(e.target.value))}
+                    value={homeScore ?? ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setHomeScore(value === '' ? null : Number(value));
+                      if (value.length > 0) {
+                        awayScoreInputRef.current?.focus();
+                      }
+                    }}
                     className="w-12 sm:w-16 px-1 sm:px-2 py-1 sm:py-2 border border-gray-300 rounded text-center text-sm sm:text-base"
                     required
                   />
@@ -243,8 +259,12 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                     type="number"
                     min="0"
                     max="20"
-                    value={awayScore}
-                    onChange={(e) => setAwayScore(Number(e.target.value))}
+                    value={awayScore ?? ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setAwayScore(value === '' ? null : Number(value));
+                    }}
+                    ref={awayScoreInputRef}
                     className="w-12 sm:w-16 px-1 sm:px-2 py-1 sm:py-2 border border-gray-300 rounded text-center text-sm sm:text-base"
                     required
                   />

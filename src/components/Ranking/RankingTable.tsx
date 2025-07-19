@@ -6,8 +6,8 @@ import { RoundSelector } from './RoundSelector';
 interface RankingTableProps {
   ranking: UserStats[];
   currentUserId?: string;
-  selectedRound: number | undefined;
-  onRoundChange: (round: number | undefined) => void;
+  selectedRound: number | 'all' | undefined;
+  onRoundChange: (round: number | 'all' | undefined) => void;
   totalRounds: number;
 }
 

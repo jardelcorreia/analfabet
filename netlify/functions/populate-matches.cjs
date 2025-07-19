@@ -5,16 +5,44 @@ const API_KEY = process.env.SPORTSDB_API_KEY; // Replace with your actual API ke
 const API_URL = 'https://www.thesportsdb.com/api/v1/json/{API_KEY}/eventsround.php?id=4351&r={round}&s=2025'; // 4351 is the ID for Brasileirão Série A 2025
 
 const getStatus = (apiStatus) => {
+  if (!apiStatus) return 'unknown';
+
   const lowerCaseStatus = apiStatus.toLowerCase();
-  if (lowerCaseStatus.includes('finished')) {
+
+  // Match finished/completed games
+  if (lowerCaseStatus.includes('finished') ||
+      lowerCaseStatus.includes('match finished') ||
+      lowerCaseStatus.includes('ft') ||
+      lowerCaseStatus.includes('full time') ||
+      lowerCaseStatus.includes('final') ||
+      lowerCaseStatus.includes('complete')) {
     return 'finished';
   }
-  if (lowerCaseStatus.includes('live')) {
+
+  // Match live/ongoing games
+  if (lowerCaseStatus.includes('live') ||
+      lowerCaseStatus.includes('1h') ||
+      lowerCaseStatus.includes('2h') ||
+      lowerCaseStatus.includes('ht') ||
+      lowerCaseStatus.includes('half time') ||
+      lowerCaseStatus.includes('et') ||
+      lowerCaseStatus.includes('extra time') ||
+      lowerCaseStatus.includes('pen') ||
+      lowerCaseStatus.includes('penalties') ||
+      lowerCaseStatus.includes('in play')) {
     return 'live';
   }
-  if (lowerCaseStatus.includes('postponed')) {
+
+  // Match postponed/cancelled games
+  if (lowerCaseStatus.includes('postponed') ||
+      lowerCaseStatus.includes('cancelled') ||
+      lowerCaseStatus.includes('canceled') ||
+      lowerCaseStatus.includes('suspended') ||
+      lowerCaseStatus.includes('delayed')) {
     return 'postponed';
   }
+
+  // Default to scheduled for upcoming games
   return 'scheduled';
 };
 
@@ -26,8 +54,12 @@ exports.handler = async function(event, context) {
     };
   }
 
+  const { round: singleRound } = event.queryStringParameters || {};
+
   try {
-    for (let round = 1; round <= 38; round++) {
+    const roundsToFetch = singleRound ? [singleRound] : Array.from({ length: 38 }, (_, i) => i + 1);
+
+    for (const round of roundsToFetch) {
       const url = API_URL.replace('{API_KEY}', API_KEY).replace('{round}', round);
       const response = await axios.get(url);
 
@@ -50,7 +82,9 @@ exports.handler = async function(event, context) {
           await dbHelpers.upsertMatch(matchData);
         }
       }
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+      if (roundsToFetch.length > 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+      }
     }
 
     return {

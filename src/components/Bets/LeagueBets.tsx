@@ -1,19 +1,28 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useLeagueBets } from '../../hooks/useLeagueBets';
 import { RoundSelector } from '../Ranking/RoundSelector';
 import { Bet, League } from '../../types';
 import { timesInfo } from '../../lib/teams';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Calendar, Users, Trophy, Target } from 'lucide-react';
+import { Calendar, Users, Trophy, Target, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface LeagueBetsProps {
   league: League;
 }
 
 export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
-  const [selectedRound, setSelectedRound] = useState<number | undefined>(1);
-  const { bets, loading } = useLeagueBets(league.id, selectedRound);
+  const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>();
+  const [expandedPlayers, setExpandedPlayers] = useState<Set<string>>(new Set());
+  const { bets, loading, displayedRound } = useLeagueBets(league.id, selectedRound);
+
+  useEffect(() => {
+    if (displayedRound !== undefined && selectedRound !== displayedRound) {
+      if (selectedRound === undefined) {
+        setSelectedRound(displayedRound);
+      }
+    }
+  }, [displayedRound, selectedRound]);
 
   const betsByPlayer = useMemo(() => {
     const now = new Date();
@@ -32,6 +41,18 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
       }, {} as Record<string, { player: any; bets: Bet[] }>);
   }, [bets]);
 
+  const togglePlayerExpansion = (playerId: string) => {
+    setExpandedPlayers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(playerId)) {
+        newSet.delete(playerId);
+      } else {
+        newSet.add(playerId);
+      }
+      return newSet;
+    });
+  };
+
   const getResultColor = (bet: Bet) => {
     if (bet.match.status !== 'finished') return 'text-gray-500';
     if (bet.is_exact) return 'text-green-600';
@@ -39,11 +60,21 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
     return 'text-red-600';
   };
 
-  const getResultText = (bet: Bet) => {
-    if (bet.match.status !== 'finished') return 'Pendente';
-    if (bet.is_exact) return 'Placar Exato!';
-    if (bet.points && bet.points > 0) return 'Resultado Correto';
-    return 'Errou';
+  const getResultBadge = (bet: Bet) => {
+    if (bet.match.status !== 'finished') return { text: 'P', color: 'bg-gray-100 text-gray-600' };
+    if (bet.is_exact) return { text: 'E', color: 'bg-green-100 text-green-700' };
+    if (bet.points && bet.points > 0) return { text: 'C', color: 'bg-blue-100 text-blue-700' };
+    return { text: 'X', color: 'bg-red-100 text-red-700' };
+  };
+
+  const getPlayerStats = (bets: Bet[]) => {
+    const finished = bets.filter(bet => bet.match.status === 'finished');
+    const exact = finished.filter(bet => bet.is_exact).length;
+    const correct = finished.filter(bet => bet.points && bet.points > 0 && !bet.is_exact).length;
+    const total = finished.length;
+    const points = finished.reduce((sum, bet) => sum + (bet.points || 0), 0);
+
+    return { exact, correct, total, points };
   };
 
   if (loading) {
@@ -56,14 +87,14 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
 
   return (
     <div className="container mx-auto p-4">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl p-6 mb-6 text-white">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      {/* Header Compacto */}
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg p-4 mb-4 text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Apostas da Liga</h1>
-            <p className="text-green-100 text-lg">{league?.name}</p>
+            <h1 className="text-2xl font-bold">{league?.name}</h1>
+            <p className="text-green-100 text-sm">Apostas da Liga</p>
           </div>
-          <div className="w-full lg:w-auto">
+          <div className="w-full sm:w-auto">
             <RoundSelector
               selectedRound={selectedRound}
               onRoundChange={setSelectedRound}
@@ -72,127 +103,127 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
             />
           </div>
         </div>
-
-        {/* Mobile round indicator */}
-        <div className="mt-4 lg:hidden">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-            <span className="text-sm text-green-100">
-              {selectedRound ? `Visualizando rodada ${selectedRound}` : 'Visualizando todas as rodadas'}
-            </span>
-          </div>
-        </div>
       </div>
 
-      {/* Players and Bets */}
-      <div className="space-y-6">
-        {Object.values(betsByPlayer).map(({ player, bets }) => (
-          <div key={player.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            {/* Player Header */}
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">
-                      {player.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-800">{player.name}</h2>
-                    <p className="text-sm text-gray-600">{bets.length} aposta{bets.length !== 1 ? 's' : ''}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 text-gray-500">
-                  <Users className="w-5 h-5" />
-                </div>
-              </div>
-            </div>
+      {/* Lista Compacta de Jogadores */}
+      <div className="space-y-2">
+        {Object.values(betsByPlayer).map(({ player, bets }) => {
+          const isExpanded = expandedPlayers.has(player.id);
+          const stats = getPlayerStats(bets);
 
-            {/* Player Bets */}
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {bets.map(bet => (
-                  <div key={bet.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                    {/* Match Header */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">
-                          {format(new Date(bet.match.match_date), 'dd/MM - HH:mm', { locale: ptBR })}
-                        </span>
-                      </div>
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        bet.match.status === 'finished'
-                          ? bet.is_exact
-                            ? 'bg-green-100 text-green-800'
-                            : bet.points && bet.points > 0
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {getResultText(bet)}
+          return (
+            <div key={player.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              {/* Header do Jogador - Sempre Visível */}
+              <div
+                className="px-3 sm:px-4 py-3 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => togglePlayerExpansion(player.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm">
+                        {player.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
-
-                    {/* Match Details */}
-                    <div className="flex items-center justify-between space-x-2">
-                      <div className="text-center flex-1">
-                        <div className="text-sm font-medium text-gray-800 truncate mb-1">
-                          {timesInfo[bet.match.home_team]?.nome || bet.match.home_team}
-                        </div>
-                        <div className="text-lg font-bold text-gray-700">{bet.home_score}</div>
-                      </div>
-
-                      <div className="text-center px-2">
-                        <div className="text-xs text-gray-500 mb-1">VS</div>
-                        <div className="text-xs text-gray-500 font-medium">
-                          {bet.match.status === 'finished' && bet.match.home_score !== null
-                            ? `${bet.match.home_score}-${bet.match.away_score}`
-                            : 'Aguardando'
-                          }
-                        </div>
-                      </div>
-
-                      <div className="text-center flex-1">
-                        <div className="text-sm font-medium text-gray-800 truncate mb-1">
-                          {timesInfo[bet.match.away_team]?.nome || bet.match.away_team}
-                        </div>
-                        <div className="text-lg font-bold text-gray-700">{bet.away_score}</div>
-                      </div>
-                    </div>
-
-                    {/* Points Footer */}
-                    {bet.match.status === 'finished' && bet.points !== null && (
-                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
-                        <div className="flex items-center space-x-1">
-                          <Trophy className="w-4 h-4 text-yellow-500" />
-                          <span className="text-sm font-medium">{bet.points}pts</span>
-                        </div>
-                        {bet.is_exact && (
-                          <div className="flex items-center space-x-1">
-                            <Target className="w-4 h-4 text-green-500" />
-                            <span className="text-sm font-medium text-green-600">Exato!</span>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-gray-800 truncate">{player.name}</h3>
+                      <div className="flex items-center space-x-2 text-xs text-gray-600 overflow-hidden">
+                        <span className="flex-shrink-0">{bets.length} apostas</span>
+                        {stats.total > 0 && (
+                          <div className="flex items-center space-x-1 sm:space-x-2 overflow-hidden">
+                            <span className="hidden sm:inline">•</span>
+                            <span className="text-green-600 flex-shrink-0">{stats.exact}E</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="text-blue-600 flex-shrink-0">{stats.correct}C</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="font-medium flex-shrink-0">{stats.points}pts</span>
                           </div>
                         )}
                       </div>
-                    )}
+                    </div>
                   </div>
-                ))}
+                  <div className="flex items-center space-x-2 flex-shrink-0">
+                    <div className="text-xs text-gray-500">
+                      {stats.total > 0 ? `${Math.round(((stats.exact + stats.correct) / stats.total) * 100)}%` : '-'}
+                    </div>
+                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </div>
               </div>
+
+              {/* Apostas do Jogador - Expansível */}
+              {isExpanded && (
+                <div className="p-3 sm:p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+                    {bets.map(bet => {
+                      const badge = getResultBadge(bet);
+                      return (
+                        <div key={bet.id} className="bg-gray-50 rounded-lg p-2 sm:p-3 border border-gray-200">
+                          {/* Cabeçalho da Aposta - Mobile Otimizado */}
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-1 min-w-0 flex-1">
+                              <Calendar className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                              <span className="text-xs text-gray-600 truncate">
+                                {format(new Date(bet.match.match_date), 'dd/MM HH:mm', { locale: ptBR })}
+                              </span>
+                            </div>
+                            <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${badge.color} flex-shrink-0 ml-2`}>
+                              {badge.text}
+                            </span>
+                          </div>
+
+                          {/* Detalhes da Partida - Layout Horizontal */}
+                          <div className="flex items-center justify-center space-x-2">
+                            <span className="text-xs sm:text-sm font-bold text-gray-800">
+                              {timesInfo[bet.match.home_team]?.abrev || bet.match.home_team.substring(0, 3).toUpperCase()}
+                            </span>
+                            <span className="text-sm sm:text-base font-bold text-gray-700">
+                              {bet.home_score}
+                            </span>
+                            <span className="text-xs text-gray-500">-</span>
+                            <span className="text-sm sm:text-base font-bold text-gray-700">
+                              {bet.away_score}
+                            </span>
+                            <span className="text-xs sm:text-sm font-bold text-gray-800">
+                              {timesInfo[bet.match.away_team]?.abrev || bet.match.away_team.substring(0, 3).toUpperCase()}
+                            </span>
+                          </div>
+
+                            {/* Resultado Real - Mobile Otimizado */}
+                            {bet.match.status === 'finished' && bet.match.home_score !== null && (
+                              <div className="text-xs text-gray-500 pt-1 border-t border-gray-200 mt-2">
+                                <div className="flex items-center justify-between">
+                                  <span>Real: {bet.match.home_score}-{bet.match.away_score}</span>
+                                  {bet.points !== null && (
+                                    <div className="flex items-center space-x-1">
+                                      <span className="font-medium">{bet.points}pts</span>
+                                      {bet.is_exact && <Target className="w-3 h-3 text-green-500" />}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Empty State */}
+      {/* Estado Vazio */}
       {Object.keys(betsByPlayer).length === 0 && (
-        <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="w-20 h-20 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Trophy className="w-10 h-10 text-white" />
+        <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="w-16 h-16 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Trophy className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
             Nenhuma aposta para exibir
           </h3>
-          <p className="text-gray-500 max-w-md mx-auto">
+          <p className="text-gray-500 text-sm max-w-md mx-auto">
             {selectedRound
               ? `As apostas da rodada ${selectedRound} serão exibidas aqui após o início de cada partida.`
               : 'As apostas serão exibidas aqui após o início de cada partida.'
