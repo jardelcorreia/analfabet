@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Lock, Mail, Trophy, AtSign } from 'lucide-react';
+import { User, Lock, Mail, Trophy, AtSign, Eye, EyeOff } from 'lucide-react';
 
 interface AuthFormProps {
   onSignIn: (identifier: string, password: string, rememberMe: boolean) => Promise<void>;
@@ -15,6 +15,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const isEmailFormat = (input: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -100,6 +101,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
     setEmail('');
     setName('');
     setPassword('');
+    setShowPassword(false);
   };
 
   const getLoginIcon = () => {
@@ -110,80 +112,75 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
   const LoginIcon = getLoginIcon();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-400 via-green-500 to-yellow-400 flex items-center justify-center p-3 sm:p-4 md:p-6">
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 w-full max-w-sm sm:max-w-md mx-auto">
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <Trophy className="w-10 h-10 sm:w-12 sm:h-12 text-green-600 mr-2" />
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">AnalfaBet</h1>
+    <div className="min-h-screen bg-gradient-to-br from-green-400 via-green-500 to-yellow-400 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-xl p-8 w-full max-w-sm">
+
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+            <Trophy className="w-8 h-8 text-green-600" />
           </div>
-          <p className="text-sm sm:text-base text-gray-600">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">AnalfaBet</h1>
+          <p className="text-gray-500 text-sm">
             {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
           </p>
         </div>
 
+        {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-300 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded-lg mb-4 text-sm">
+          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm text-center">
             {error}
           </div>
         )}
 
-        <div className="space-y-4 sm:space-y-6">
+        {/* Form Fields */}
+        <div className="space-y-4 mb-6">
           {isLogin ? (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email ou Nome de Usuário
+              <label className="block text-gray-700 text-sm font-medium mb-2">
+                Email ou Nome
               </label>
               <div className="relative">
-                <LoginIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <LoginIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
-                  placeholder="seu@email.com ou seu_nome"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                   required
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Você pode usar seu email ou nome de usuário para entrar
-              </p>
             </div>
           ) : (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 text-sm font-medium mb-2">
                   Nome de Usuário
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
-                    placeholder="seu_nome"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                     required
                     minLength={2}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Mínimo 2 caracteres, sem @ ou espaços
-                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 text-sm font-medium mb-2">
                   Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
-                    placeholder="seu@email.com"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                     required
                   />
                 </div>
@@ -192,56 +189,59 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-gray-700 text-sm font-medium mb-2">
               Senha
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
-                placeholder="Sua senha"
+                className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                 required
                 minLength={6}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
-            {!isLogin && (
-              <p className="text-xs text-gray-500 mt-1">
-                Mínimo 6 caracteres
-              </p>
-            )}
           </div>
-
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-            />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-              Manter-me conectado
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            onClick={handleSubmit}
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 sm:py-3.5 px-4 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base"
-          >
-            {loading ? 'Carregando...' : isLogin ? 'Entrar' : 'Criar conta'}
-          </button>
         </div>
 
-        <div className="mt-6 text-center">
+        {/* Remember Me */}
+        <div className="flex items-center mb-6">
+          <input
+            id="remember"
+            type="checkbox"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+          />
+          <label htmlFor="remember" className="ml-2 text-sm text-gray-600">
+            Manter-me conectado
+          </label>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading}
+          onClick={handleSubmit}
+          className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mb-6"
+        >
+          {loading ? 'Carregando...' : isLogin ? 'Entrar' : 'Criar Conta'}
+        </button>
+
+        {/* Mode Switch */}
+        <div className="text-center">
           <button
             onClick={handleModeSwitch}
-            className="text-green-600 hover:text-green-700 font-medium transition-colors text-sm sm:text-base hover:underline"
+            className="text-gray-600 hover:text-green-600 text-sm font-medium transition-colors"
           >
             {isLogin ? 'Não tem conta? Criar uma' : 'Já tem conta? Entrar'}
           </button>
