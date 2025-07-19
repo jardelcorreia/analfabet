@@ -444,6 +444,7 @@ const dbHelpers = {
         ...row,
         league_id: leagueId,
         rounds_won: 0, // For specific round view, rounds_won doesn't apply
+        rounds_won_list: [], // No specific rounds list for single round view
         user: {
           id: row.user_id,
           name: row.user_name,
@@ -467,6 +468,21 @@ const dbHelpers = {
       ORDER BY us.total_points DESC, us.rounds_won DESC, us.exact_scores DESC
     `;
 
+    // Get detailed rounds won for each user
+    const roundsWonData = await sql`
+      SELECT 
+        rw.user_id,
+        ARRAY_AGG(rw.round_number ORDER BY rw.round_number) as rounds_won_list
+      FROM round_winners rw
+      WHERE rw.league_id = ${leagueId}
+      GROUP BY rw.user_id
+    `;
+
+    const roundsWonMap = new Map();
+    roundsWonData.forEach(row => {
+      roundsWonMap.set(row.user_id, row.rounds_won_list || []);
+    });
+
     return result.map(row => ({
       user_id: row.user_id,
       league_id: row.league_id,
@@ -475,6 +491,7 @@ const dbHelpers = {
       total_bets: row.total_bets,
       correct_results: row.correct_results,
       rounds_won: row.rounds_won || 0,
+      rounds_won_list: roundsWonMap.get(row.user_id) || [],
       user: {
         id: row.user_id,
         name: row.user_name,
@@ -484,6 +501,24 @@ const dbHelpers = {
     }));
   },
 
+  // Get detailed rounds won for a specific player
+  async getPlayerRoundsWon(playerId, leagueId) {
+    return await sql`
+      SELECT * FROM get_player_rounds_won(${playerId}, ${leagueId})
+    `;
+  },
+
+  // Get round winners for a specific round
+  async getRoundWinners(leagueId, round) {
+    return await sql`
+      SELECT * FROM get_round_winners_detailed(${leagueId}, ${round})
+    `;
+  },
+
+  // Calculate detailed rounds won for a league
+  async calculateDetailedRoundsWon(leagueId) {
+    await sql`SELECT calculate_detailed_rounds_won_for_league(${leagueId})`;
+  },
   async getUserStats(userId, leagueId) {
     const result = await sql`
       SELECT * FROM user_stats WHERE user_id = ${userId} AND league_id = ${leagueId}

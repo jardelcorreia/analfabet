@@ -26,7 +26,7 @@ exports.handler = async function(event, context) {
     if (!targetRound) {
       // Trigger rounds won calculation for this league if needed
       try {
-        await dbHelpers.query('SELECT calculate_rounds_won_for_league($1)', [leagueId]);
+        await dbHelpers.calculateDetailedRoundsWon(leagueId);
       } catch (error) {
         console.warn('Could not update rounds won:', error.message);
       }

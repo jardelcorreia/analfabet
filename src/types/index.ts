@@ -59,6 +59,7 @@ export interface UserStats {
   total_bets: number;
   correct_results: number;
   rounds_won: number;
+  rounds_won_list: number[];
   user: User;
 }
 
