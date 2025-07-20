@@ -86,8 +86,11 @@ export const RoundSelector: React.FC<RoundSelectorProps> = ({
           }}
           className={selectStyles({ variant })}
         >
-          <option value="all" className="text-gray-900 bg-white">
+          <option value="" className="text-gray-900 bg-white">
             📊 Todas as rodadas
+          </option>
+          <option value="all" className="text-gray-900 bg-white">
+            🏆 Todas as rodadas (completo)
           </option>
           {rounds.map((round) => (
             <option key={round} value={round} className="text-gray-900 bg-white">
