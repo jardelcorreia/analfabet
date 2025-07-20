@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Calendar, Filter } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { League, Match, Bet } from '../../types';
 import { MatchCard } from './MatchCard';
 import { dbHelpers } from '../../lib/database';
+import { RoundSelector } from '../Ranking/RoundSelector';
 
 interface MatchListProps {
   league: League;
@@ -11,6 +12,8 @@ interface MatchListProps {
   loading: boolean;
   error: string | null;
   displayedRound: number | undefined;
+  selectedRound: number | 'all' | undefined;
+  onRoundChange: (round: number | 'all' | undefined) => void;
 }
 
 export const MatchList: React.FC<MatchListProps> = ({
@@ -20,32 +23,18 @@ export const MatchList: React.FC<MatchListProps> = ({
   loading,
   error,
   displayedRound,
+  selectedRound,
+  onRoundChange,
 }) => {
-  const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>();
   const [userBets, setUserBets] = useState<Bet[]>([]);
 
   React.useEffect(() => {
-    // If displayedRound is defined (meaning data has loaded for a specific round,
-    // either user-selected or server-default) and it's different from what the
-    // user might have selected (or if selectedRound is undefined meaning we want default),
-    // update selectedRound to match.
-    // This ensures the dropdown accurately reflects the data being shown.
-    // Only update if selectedRound is not already matching displayedRound to avoid loops if user selects.
-    if (displayedRound !== undefined && selectedRound !== displayedRound) {
-        // However, if selectedRound was intentionally set to `undefined` by the user
-        // (e.g. choosing "Todas as rodadas"), and the server returns a specific default round,
-        // we DO want to update selectedRound to that default.
-        // This logic needs to be careful to not override user's explicit selection of "Todas as rodadas"
-        // if that's a desired state that means "let server decide" vs "show nothing specific".
-        // For now, let's assume if `selectedRound` is undefined, we want it to take server's default.
-        // If `selectedRound` has a value, it means user picked it, so `useMatches` used it.
-        // The `displayedRound` from server should match `selectedRound` if `selectedRound` was provided.
-        // The main case this handles is initial load where `selectedRound` is undefined.
-        if (selectedRound === undefined) {
-             setSelectedRound(displayedRound);
-        }
+    if (displayedRound !== undefined && selectedRound !== displayedRound && selectedRound !== 'all') {
+      if (selectedRound === undefined) {
+        onRoundChange(displayedRound);
+      }
     }
-  }, [displayedRound, selectedRound]);
+  }, [displayedRound, selectedRound, onRoundChange]);
 
   React.useEffect(() => {
     const fetchUserBets = async () => {
@@ -136,28 +125,11 @@ export const MatchList: React.FC<MatchListProps> = ({
       {/* Header with improved mobile layout */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Jogos</h2>
-        <div className="flex items-center space-x-2">
-          <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
-          <select
-            value={selectedRound || ''}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === 'all') {
-                setSelectedRound('all');
-              } else {
-                setSelectedRound(Number(value));
-              }
-            }}
-            className="flex-1 min-w-0 px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="all">Todas as rodadas</option>
-            {rounds.map(round => (
-              <option key={round} value={round}>
-                {round}ª Rodada
-              </option>
-            ))}
-          </select>
-        </div>
+        <RoundSelector
+          selectedRound={selectedRound}
+          onRoundChange={onRoundChange}
+          totalRounds={38}
+        />
       </div>
 
       {/* Responsive grid with improved mobile layout */}

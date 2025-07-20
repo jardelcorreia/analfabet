@@ -100,6 +100,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
               loading={matchesLoading}
               error={matchesError}
               displayedRound={matchesDisplayedRound}
+              selectedRound={selectedRound}
+              onRoundChange={setSelectedRound}
             />
           </div>
         ) : (
