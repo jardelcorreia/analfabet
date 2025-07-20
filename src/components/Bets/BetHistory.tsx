@@ -45,11 +45,23 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
 
   const getResultText = (bet: Bet) => {
     if (bet.match.status !== 'finished') return 'Pendente';
+    if (bet.match.status === 'live') return 'Ao Vivo';
     if (bet.is_exact) return 'Placar Exato!';
     if (bet.points && bet.points > 0) return 'Resultado Correto';
     return 'Errou';
   };
 
+  const getResultIcon = (bet: Bet) => {
+    if (bet.match.status === 'live') {
+      return <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>;
+    }
+    if (bet.match.status !== 'finished') {
+      return <div className="w-2 h-2 bg-gray-400 rounded-full"></div>;
+    }
+    if (bet.is_exact) return '🎯';
+    if (bet.points && bet.points > 0) return '✅';
+    return '❌';
+  };
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -135,9 +147,12 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
                   {format(new Date(bet.match.match_date), 'dd/MM/yyyy - HH:mm', { locale: ptBR })}
                 </span>
               </div>
-              <span className={`text-sm font-medium ${getResultColor(bet)}`}>
-                {getResultText(bet)}
-              </span>
+              <div className="flex items-center space-x-2">
+                {getResultIcon(bet)}
+                <span className={`text-sm font-medium ${getResultColor(bet)}`}>
+                  {getResultText(bet)}
+                </span>
+              </div>
             </div>
 
             {/* Conteúdo do jogo */}
@@ -155,7 +170,7 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
                 <div className="text-center px-2">
                   <div className="text-xs text-gray-500 mb-1">VS</div>
                   <div className="text-xs text-gray-500 font-medium">
-                    {bet.match.status === 'finished' && bet.match.home_score !== null
+                    {(bet.match.status === 'finished' || bet.match.status === 'live') && bet.match.home_score !== null
                       ? `${bet.match.home_score}-${bet.match.away_score}`
                       : 'Aguardando'
                     }
@@ -174,12 +189,15 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
             </div>
 
             {/* Rodapé com pontos */}
-            {bet.match.status === 'finished' && bet.points !== null && (
+            {(bet.match.status === 'finished' || bet.match.status === 'live') && bet.points !== null && (
               <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200">
                 <div className="flex items-center space-x-1">
                   <Trophy className="w-4 h-4 text-yellow-500" />
                   <span className="text-sm font-medium">
                     {bet.points}pts
+                    {bet.match.status === 'live' && (
+                      <span className="ml-1 text-xs text-blue-600">(ao vivo)</span>
+                    )}
                   </span>
                 </div>
                 {bet.is_exact && (
@@ -187,6 +205,14 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
                     <Target className="w-4 h-4 text-green-500" />
                     <span className="text-sm font-medium text-green-600">
                       Exato!
+                    </span>
+                  </div>
+                )}
+                {bet.match.status === 'live' && (
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs font-medium text-red-600">
+                      LIVE
                     </span>
                   </div>
                 )}

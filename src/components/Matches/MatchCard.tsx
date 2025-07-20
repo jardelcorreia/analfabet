@@ -22,7 +22,18 @@ export const MatchCard: React.FC<MatchCardProps> = ({
   const [homeScore, setHomeScore] = useState<number | null>(userBet?.home_score ?? null);
   const [awayScore, setAwayScore] = useState<number | null>(userBet?.away_score ?? null);
   const [loading, setLoading] = useState(false);
+  const [pointsCalculating, setPointsCalculating] = useState(false);
   const awayScoreInputRef = useRef<HTMLInputElement>(null);
+
+  // Check if points are being calculated in real-time
+  useEffect(() => {
+    if (match.status === 'live' && userBet && (match.home_score !== null && match.away_score !== null)) {
+      setPointsCalculating(true);
+      // Simulate brief calculation time for UX
+      const timer = setTimeout(() => setPointsCalculating(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [match.home_score, match.away_score, match.status, userBet]);
 
   // Check if betting is allowed (client-side validation for UX)
   const isBettingAllowed = () => {
@@ -179,15 +190,226 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 Sua aposta: {userBet.home_score} - {userBet.away_score}
               </span>
             </div>
-            {match.status === 'finished' && userBet.points !== null && (
+            {/* Show points for both finished and live matches */}
+            {(match.status === 'finished' || match.status === 'live') && match.home_score !== null && match.away_score !== null && (
               <div className="flex items-center space-x-2 ml-6 sm:ml-0">
-                <Trophy className="w-4 h-4 text-yellow-600 flex-shrink-0" />
-                <span className="text-sm font-medium text-gray-700">
-                  {userBet.points} pontos
+                {pointsCalculating ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600"></div>
+                    <span className="text-sm text-gray-600">Calculando...</span>
+                  </div>
+                ) : userBet.points !== null ? (
+                  <>
+                    <Trophy className="w-4 h-4 text-yellow-600 flex-shrink-0" />
+                    <span className="text-sm font-medium text-gray-700">
+                      {userBet.points} pontos
+                    </span>
+                    {userBet.is_exact && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                        Exato!
+                      </span>
+                    )}
+                    {match.status === 'live' && (
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded animate-pulse">
+                        Ao Vivo
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-xs text-gray-500">Aguardando...</span>
+                )}
+              </div>
+            )}
+            {match.status === 'finished' && userBet.points === null && (
+              <div className="flex items-center space-x-2 ml-6 sm:ml-0">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                <span className="text-xs text-gray-500">Calculando pontos...</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Real-time score comparison for live matches */}
+          {match.status === 'live' && match.home_score !== null && match.away_score !== null && (
+            <div className="mt-2 pt-2 border-t border-gray-200">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-600">
+                  Placar atual: {match.home_score} - {match.away_score}
                 </span>
-                {userBet.is_exact && (
-                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                    Exato!
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-red-600 font-medium">AO VIVO</span>
+                </div>
+              </div>
+              {userBet.points !== null && (
+                <div className="mt-1 text-xs text-gray-600">
+                  {userBet.is_exact 
+                    ? "🎯 Placar exato! Mantendo 3 pontos" 
+                    : userBet.points > 0 
+                      ? "✅ Resultado correto! Mantendo 1 ponto"
+                      : "❌ Resultado incorreto no momento"
+                  }
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Live match indicator */}
+      {match.status === 'live' && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+          <div className="flex items-center justify-center space-x-2">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+              <span className="text-red-700 font-medium text-sm">JOGO AO VIVO</span>
+            </div>
+            <span className="text-red-600 text-sm">
+              Pontuação sendo calculada em tempo real
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Current live score display */}
+      {match.status === 'live' && match.home_score !== null && match.away_score !== null && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <div className="text-center">
+            <div className="text-sm text-blue-700 mb-1">Placar Atual</div>
+            <div className="text-2xl font-bold text-blue-800">
+              {match.home_score} - {match.away_score}
+            </div>
+            <div className="text-xs text-blue-600 mt-1">
+              Atualizado em tempo real
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enhanced betting conditions with deadline validation */}
+      {isBettingAllowed() && (
+        <div className="space-y-3">
+          {/* Show time until betting deadline */}
+          {getTimeUntilDeadline() && (
+            <div className="text-center text-xs text-gray-500 bg-yellow-50 py-2 px-2 rounded">
+              <div className="break-words">
+                {getTimeUntilDeadline()}
+              </div>
+            </div>
+          )}
+          
+          {!showBetForm ? (
+            <button
+              onClick={() => {
+                setHomeScore(userBet?.home_score ?? null);
+                setAwayScore(userBet?.away_score ?? null);
+                setShowBetForm(true);
+              }}
+              className="w-full px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
+            >
+              {userBet ? 'Alterar Aposta' : 'Fazer Aposta'}
+            </button>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {/* Betting form - improved mobile layout */}
+              <div className="flex items-center justify-center space-x-2 sm:space-x-4">
+                <div className="text-center flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <span className="truncate block max-w-full">
+                      {timesInfo[match.home_team]?.abrev || match.home_team}
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="20"
+                    value={homeScore ?? ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setHomeScore(value === '' ? null : Number(value));
+                      if (value.length > 0) {
+                        awayScoreInputRef.current?.focus();
+                      }
+                    }}
+                    className="w-12 sm:w-16 px-1 sm:px-2 py-1 sm:py-2 border border-gray-300 rounded text-center text-sm sm:text-base"
+                    required
+                  />
+                </div>
+                <span className="text-lg sm:text-xl font-bold text-gray-500 flex-shrink-0">×</span>
+                <div className="text-center flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <span className="truncate block max-w-full">
+                      {timesInfo[match.away_team]?.abrev || match.away_team}
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="20"
+                    value={awayScore ?? ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setAwayScore(value === '' ? null : Number(value));
+                    }}
+                    ref={awayScoreInputRef}
+                    className="w-12 sm:w-16 px-1 sm:px-2 py-1 sm:py-2 border border-gray-300 rounded text-center text-sm sm:text-base"
+                    required
+                  />
+                </div>
+              </div>
+              
+              {/* Action buttons - improved mobile layout */}
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg disabled:opacity-50 text-sm sm:text-base font-medium"
+                >
+                  {loading ? 'Salvando...' : 'Confirmar'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowBetForm(false)}
+                  className="flex-1 px-4 py-2 sm:py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-sm sm:text-base font-medium"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
+
+      {/* Status messages - improved mobile layout */}
+      {canBet && match.status === 'scheduled' && !isBettingAllowed() && (
+        <div className="text-center text-xs sm:text-sm text-red-600 bg-red-50 py-2 px-4 rounded-lg">
+          <Clock className="w-4 h-4 inline mr-1" />
+          <span className="break-words">Prazo para apostas encerrado</span>
+        </div>
+      )}
+
+      {match.status === 'finished' && (
+        <div className="text-center text-xs sm:text-sm text-gray-500 mt-4">
+          <Clock className="w-4 h-4 inline mr-1" />
+          Jogo finalizado
+        </div>
+      )}
+
+      {match.status === 'live' && (
+        <div className="text-center text-xs sm:text-sm text-green-600 bg-green-50 py-2 px-4 rounded-lg">
+          <Clock className="w-4 h-4 inline mr-1" />
+          Jogo em andamento - Pontuação em tempo real
+        </div>
+      )}
+
+      {match.status === 'postponed' && (
+        <div className="text-center text-xs sm:text-sm text-yellow-600 bg-yellow-50 py-2 px-4 rounded-lg">
+          <Clock className="w-4 h-4 inline mr-1" />
+          Jogo adiado
+        </div>
+      )}
+    </div>
+  );
+};
                   </span>
                 )}
               </div>

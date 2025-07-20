@@ -79,7 +79,27 @@ exports.handler = async function(event, context) {
             away_score: match.intAwayScore,
           };
 
-          await dbHelpers.upsertMatch(matchData);
+          // Check if this is a score update for an existing match
+          const existingMatch = await dbHelpers.getMatchByApiId(match.idEvent);
+          
+          if (existingMatch && 
+              (existingMatch.home_score !== match.intHomeScore || 
+               existingMatch.away_score !== match.intAwayScore ||
+               existingMatch.status !== getStatus(match.strStatus))) {
+            
+            console.log(`[populate-matches] Real-time update detected for match ${match.idEvent}`);
+            
+            // Use real-time score update function
+            await dbHelpers.updateMatchScores(
+              existingMatch.id,
+              match.intHomeScore,
+              match.intAwayScore,
+              getStatus(match.strStatus)
+            );
+          } else {
+            // Regular upsert for new matches or no changes
+            await dbHelpers.upsertMatch(matchData);
+          }
         }
       }
       if (roundsToFetch.length > 1) {
