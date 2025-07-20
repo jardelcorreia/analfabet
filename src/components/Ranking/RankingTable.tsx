@@ -210,19 +210,6 @@ export const RankingTable: React.FC<RankingTableProps> = ({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        {/* Real-time update indicator */}
-        <div className="bg-blue-50 border-b border-blue-200 px-6 py-2">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              <span className="text-blue-700">Pontuação atualizada em tempo real</span>
-            </div>
-            <span className="text-blue-600 text-xs">
-              Última atualização: {new Date().toLocaleTimeString('pt-BR')}
-            </span>
-          </div>
-        </div>
-        
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
