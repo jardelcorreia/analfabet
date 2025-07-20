@@ -42,6 +42,6 @@ export const useMatches = (round?: number | 'all') => {
     loading,
     error,
     displayedRound, // Return the actual round being displayed
-    refreshMatches: () => fetchMatchesFromServer(round) // Refresh based on current user-selected round prop
+    refreshMatches: () => fetchMatches(round) // Refresh based on current user-selected round prop
   };
 };
