@@ -24,8 +24,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>(undefined);
   
   const { leagues, loading: leaguesLoading, createLeague, joinLeague } = useLeagues(user.id);
-  const { ranking, loading: rankingLoading, displayedRound: rankingDisplayedRound } = useRanking(selectedLeague?.id || '', selectedRound);
-  const { matches, loading: matchesLoading, error: matchesError, displayedRound: matchesDisplayedRound, refreshMatches } = useMatches(selectedRound);
+  const { ranking, loading: rankingLoading, displayedRound: rankingDisplayedRound, refreshRanking } = useRanking(selectedLeague?.id || '', selectedRound);
+  const { matches, loading: matchesLoading, error: matchesError, displayedRound: matchesDisplayedRound, refreshMatches } = useMatches(selectedRound, refreshRanking);
 
   useEffect(() => {
     if (rankingDisplayedRound !== undefined && selectedRound !== rankingDisplayedRound && selectedRound !== 'all') {

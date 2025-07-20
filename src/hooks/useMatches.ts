@@ -3,7 +3,7 @@ import { Match } from '../types';
 // dbHelpers will no longer be directly used here for fetching matches.
 // import { dbHelpers } from '../lib/database';
 
-export const useMatches = (round?: number | 'all') => {
+export const useMatches = (round?: number | 'all', onRefresh?: () => void) => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,13 +25,16 @@ export const useMatches = (round?: number | 'all') => {
       }
       setMatches(responseData.matches || []);
       setDisplayedRound(responseData.determinedRound);
+      if (onRefresh) {
+        onRefresh();
+      }
     } catch (err: any) {
       setError(err.message || 'An unknown error occurred while fetching matches.');
       setMatches([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [onRefresh]);
 
   useEffect(() => {
     fetchMatches(round);
