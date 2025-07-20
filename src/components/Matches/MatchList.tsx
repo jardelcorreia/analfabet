@@ -2,25 +2,28 @@ import React, { useState } from 'react';
 import { Calendar, Filter } from 'lucide-react';
 import { League, Match, Bet } from '../../types';
 import { MatchCard } from './MatchCard';
-import { useMatches } from '../../hooks/useMatches';
 import { dbHelpers } from '../../lib/database';
 
 interface MatchListProps {
   league: League;
   userId: string;
+  matches: Match[];
+  loading: boolean;
+  error: string | null;
+  displayedRound: number | undefined;
 }
 
-export const MatchList: React.FC<MatchListProps> = ({ league, userId }) => {
-  // selectedRound is what the user picks, or undefined for the server's default.
-  // It's passed as the `round` prop to useMatches.
+export const MatchList: React.FC<MatchListProps> = ({
+  league,
+  userId,
+  matches,
+  loading,
+  error,
+  displayedRound,
+}) => {
   const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>();
   const [userBets, setUserBets] = useState<Bet[]>([]);
 
-  // useMatches now returns `displayedRound` which is the actual round data is for.
-  const { matches, loading, error, displayedRound, refreshMatches } = useMatches(selectedRound);
-
-  // Effect to sync the dropdown's selectedRound with the displayedRound from the hook,
-  // especially when the server determines the default round.
   React.useEffect(() => {
     // If displayedRound is defined (meaning data has loaded for a specific round,
     // either user-selected or server-default) and it's different from what the

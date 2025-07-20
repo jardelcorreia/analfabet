@@ -47,10 +47,11 @@ export const useMatches = (round?: number | 'all') => { // round prop is the use
     } finally {
       setLoading(false);
     }
-  }, []); // Keep dependency array empty or minimal if fetchForRound is the sole driver of fetch logic.
+  }, [displayedRound]);
 
   useEffect(() => {
-    // Initial fetch and when the 'round' prop (user selection) changes
+    // Initial fetch and when the 'round' prop (user selection) changes.
+    // The dependency on `round` ensures that we re-fetch if the user selects a new round.
     fetchMatchesFromServer(round);
   }, [round, fetchMatchesFromServer]);
 
