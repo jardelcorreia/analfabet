@@ -14,14 +14,14 @@ const calculatePoints = (bet, match) => {
 
   const isExactScore = betHomeScore === matchHomeScore && betAwayScore === matchAwayScore;
   if (isExactScore) {
-    return 5; // 5 points for exact score
+    return 3; // 3 points for exact score
   }
 
   const betResult = betHomeScore > betAwayScore ? 'win' : betHomeScore < betAwayScore ? 'loss' : 'draw';
   const matchResult = matchHomeScore > matchAwayScore ? 'win' : matchHomeScore < matchAwayScore ? 'loss' : 'draw';
 
   if (betResult === matchResult) {
-    return 2; // 2 points for correct result
+    return 1; // 1 point for correct result
   }
 
   return 0;
