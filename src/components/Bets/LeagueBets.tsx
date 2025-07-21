@@ -13,6 +13,7 @@ interface LeagueBetsProps {
 
 export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
   const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>();
+  const [expandedPlayers, setExpandedPlayers] = useState<Set<string>>(new Set());
   const { bets, loading, displayedRound } = useLeagueBets(league.id, selectedRound);
 
   useEffect(() => {
@@ -23,22 +24,34 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
     }
   }, [displayedRound, selectedRound]);
 
-  const betsByMatch = useMemo(() => {
+  const betsByPlayer = useMemo(() => {
     const now = new Date();
     return bets
       .filter(bet => new Date(bet.match.match_date) <= now)
       .reduce((acc, bet) => {
-        const match = bet.match;
-        if (!acc[match.id]) {
-          acc[match.id] = {
-            match,
+        const player = bet.user;
+        if (!acc[player.id]) {
+          acc[player.id] = {
+            player,
             bets: [],
           };
         }
-        acc[match.id].bets.push(bet);
+        acc[player.id].bets.push(bet);
         return acc;
-      }, {} as Record<string, { match: any; bets: Bet[] }>);
+      }, {} as Record<string, { player: any; bets: Bet[] }>);
   }, [bets]);
+
+  const togglePlayerExpansion = (playerId: string) => {
+    setExpandedPlayers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(playerId)) {
+        newSet.delete(playerId);
+      } else {
+        newSet.add(playerId);
+      }
+      return newSet;
+    });
+  };
 
   const getResultColor = (bet: Bet) => {
     if (bet.match.status !== 'finished' && bet.match.status !== 'live') return 'text-gray-500';
@@ -49,9 +62,19 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
 
   const getResultBadge = (bet: Bet) => {
     if (bet.match.status !== 'finished' && bet.match.status !== 'live') return { text: 'P', color: 'bg-gray-100 text-gray-600' };
-    if (bet.is_exact) return { text: 'E', color: 'bg-green-100 text-green-700' };
-    if (bet.points && bet.points > 0) return { text: 'C', color: 'bg-blue-100 text-blue-700' };
-    return { text: 'X', color: 'bg-red-100 text-red-700' };
+    if (bet.is_exact) return { text: '3', color: 'bg-green-100 text-green-700' };
+    if (bet.points && bet.points > 0) return { text: '1', color: 'bg-blue-100 text-blue-700' };
+    return { text: '0', color: 'bg-red-100 text-red-700' };
+  };
+
+  const getPlayerStats = (bets: Bet[]) => {
+    const processed = bets.filter(bet => bet.match.status === 'finished' || bet.match.status === 'live');
+    const exact = processed.filter(bet => bet.is_exact).length;
+    const correct = processed.filter(bet => bet.points && bet.points > 0 && !bet.is_exact).length;
+    const total = processed.length;
+    const points = processed.reduce((sum, bet) => sum + (bet.points || 0), 0);
+
+    return { exact, correct, total, points };
   };
 
   if (loading) {
@@ -82,63 +105,115 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
         </div>
       </div>
 
-      <div className="space-y-4">
-        {Object.values(betsByMatch).map(({ match, bets }) => (
-          <div key={match.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-3 bg-gray-50 border-b border-gray-200">
-              <div className="flex items-center justify-center space-x-3">
-                <span className="text-sm font-semibold text-gray-800 text-right w-24 truncate">
-                  {timesInfo[match.home_team]?.nome || match.home_team}
-                </span>
-                <img src={timesInfo[match.home_team]?.escudo} alt={match.home_team} className="h-6 w-6" />
-                <span className="text-lg font-bold text-gray-900">
-                  {match.home_score ?? 'vs'}
-                </span>
-                <img src={timesInfo[match.away_team]?.escudo} alt={match.away_team} className="h-6 w-6" />
-                <span className="text-sm font-semibold text-gray-800 text-left w-24 truncate">
-                  {timesInfo[match.away_team]?.nome || match.away_team}
-                </span>
-              </div>
-              <div className="text-center text-xs text-gray-500 mt-1">
-                {format(new Date(match.match_date), 'dd/MM HH:mm', { locale: ptBR })}
-              </div>
-            </div>
-            <div className="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {bets.map(bet => {
-                const badge = getResultBadge(bet);
-                return (
-                  <div key={bet.id} className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-                          <span className="font-bold text-xs text-gray-600">
-                            {bet.user.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <h4 className="font-semibold text-sm text-gray-800 truncate">{bet.user.name}</h4>
-                      </div>
-                      <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${badge.color}`}>
-                        {badge.text}
+       {/* Lista Compacta de Jogadores */}
+      <div className="space-y-2">
+        {Object.values(betsByPlayer).map(({ player, bets }) => {
+          const isExpanded = expandedPlayers.has(player.id);
+          const stats = getPlayerStats(bets);
+
+          return (
+            <div key={player.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              {/* Header do Jogador - Sempre Visível */}
+              <div
+                className="px-3 sm:px-4 py-3 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => togglePlayerExpansion(player.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm">
+                        {player.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                    <div className="text-center text-lg font-bold text-gray-800 my-1">
-                      {bet.home_score} - {bet.away_score}
-                    </div>
-                    {bet.points !== null && (
-                      <div className="text-xs text-center text-gray-600 font-semibold">
-                        {bet.points}pts
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-gray-800 truncate">{player.name}</h3>
+                      <div className="flex items-center space-x-2 text-xs text-gray-600 overflow-hidden">
+                        <span className="flex-shrink-0">{bets.length} apostas</span>
+                        {stats.total > 0 && (
+                          <div className="flex items-center space-x-1 sm:space-x-2 overflow-hidden">
+                            <span className="hidden sm:inline">•</span>
+                            <span className="text-green-600 flex-shrink-0">{stats.exact}E</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="text-blue-600 flex-shrink-0">{stats.correct}C</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="font-medium flex-shrink-0">{stats.points}pts</span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
-                );
-              })}
+                  <div className="flex items-center space-x-2 flex-shrink-0">
+                    <div className="text-xs text-gray-500">
+                      {stats.total > 0 ? `${Math.round(((stats.exact + stats.correct) / stats.total) * 100)}%` : '-'}
+                    </div>
+                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </div>
+              </div>
+
+              {/* Apostas do Jogador - Expansível */}
+              {isExpanded && (
+                <div className="p-3 sm:p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+                    {bets.map(bet => {
+                      const badge = getResultBadge(bet);
+                      return (
+                        <div key={bet.id} className="bg-gray-50 rounded-lg p-2 sm:p-3 border border-gray-200">
+                          {/* Cabeçalho da Aposta - Mobile Otimizado */}
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-1 min-w-0 flex-1">
+                              <Calendar className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                              <span className="text-xs text-gray-600 truncate">
+                                {format(new Date(bet.match.match_date), 'dd/MM HH:mm', { locale: ptBR })}
+                              </span>
+                            </div>
+                            <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${badge.color} flex-shrink-0 ml-2`}>
+                              {badge.text}
+                            </span>
+                          </div>
+
+                          {/* Detalhes da Partida - Layout Horizontal */}
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className="text-xs sm:text-sm font-bold text-gray-800 text-right">
+                              <span className="hidden sm:inline">{timesInfo[bet.match.home_team]?.nome || bet.match.home_team}</span>
+                              <span className="sm:hidden">{timesInfo[bet.match.home_team]?.abrev || bet.match.home_team}</span>
+                            </div>
+                            <img src={timesInfo[bet.match.home_team]?.escudo} alt={bet.match.home_team} className="h-4 w-4 sm:h-6 sm:w-6" />
+                            <span className="text-sm sm:text-base font-bold text-gray-700">
+                              {bet.home_score}
+                            </span>
+                            <span className="text-xs text-gray-500">-</span>
+                            <span className="text-sm sm:text-base font-bold text-gray-700">
+                              {bet.away_score}
+                            </span>
+                            <img src={timesInfo[bet.match.away_team]?.escudo} alt={bet.match.away_team} className="h-4 w-4 sm:h-6 sm:w-6" />
+                            <div className="text-xs sm:text-sm font-bold text-gray-800 text-left">
+                              <span className="hidden sm:inline">{timesInfo[bet.match.away_team]?.nome || bet.match.away_team}</span>
+                              <span className="sm:hidden">{timesInfo[bet.match.away_team]?.abrev || bet.match.away_team}</span>
+                            </div>
+                          </div>
+
+                            {/* Resultado Real - Mobile Otimizado */}
+                            {(bet.match.status === 'finished' || bet.match.status === 'live') && bet.match.home_score !== null && (
+                              <div className="text-xs text-gray-500 pt-1 border-t border-gray-200 mt-2">
+                                <div className="flex items-center justify-center">
+                                  <span>Real: {bet.match.home_score}-{bet.match.away_score}</span>
+                                </div>
+                              </div>
+                            )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Estado Vazio */}
-      {Object.keys(betsByMatch).length === 0 && (
+      {Object.keys(betsByPlayer).length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="w-16 h-16 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <Trophy className="w-8 h-8 text-white" />
