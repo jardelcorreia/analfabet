@@ -50,6 +50,21 @@ const dbHelpers = {
     return result[0];
   },
 
+  async getBetsByMatchId(matchId) {
+    return await sql`
+      SELECT * FROM bets WHERE match_id = ${matchId}
+    `;
+  },
+
+  async updateBetPoints(betId, points) {
+    const result = await sql`
+      UPDATE bets SET points = ${points}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${betId}
+      RETURNING *
+    `;
+    return result[0];
+  },
+
   async updateUser(id, updates) {
     const fields = Object.keys(updates).map(key => {
       if (key === 'password') {
