@@ -93,7 +93,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
                 </div>
                 <img src={timesInfo[match.home_team]?.escudo} alt={match.home_team} className="h-6 w-6" />
                 <span className="text-lg font-bold text-gray-900">
-                  {match.home_score ?? 'vs'}
+                  {match.home_score ?? ''} - {match.away_score ?? ''}
                 </span>
                 <img src={timesInfo[match.away_team]?.escudo} alt={match.away_team} className="h-6 w-6" />
                 <div className="text-sm font-semibold text-gray-800 text-left w-24 truncate">
