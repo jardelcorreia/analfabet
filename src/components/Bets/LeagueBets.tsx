@@ -86,17 +86,19 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
         {Object.values(betsByMatch).map(({ match, bets }) => (
           <div key={match.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="p-3 bg-gray-50 border-b border-gray-200">
-              <div className="flex items-center justify-center space-x-3">
-                <div className="text-sm font-semibold text-gray-800 text-right w-24 truncate">
+              <div className="flex items-center justify-center space-x-2 sm:space-x-3">
+                <div className="text-sm font-semibold text-gray-800 text-right w-16 sm:w-24 truncate">
                   <span className="hidden sm:inline">{timesInfo[match.home_team]?.nome || match.home_team}</span>
                   <span className="sm:hidden">{timesInfo[match.home_team]?.abrev || match.home_team}</span>
                 </div>
                 <img src={timesInfo[match.home_team]?.escudo} alt={match.home_team} className="h-6 w-6" />
-                <span className="text-lg font-bold text-gray-900">
-                  {match.home_score ?? ''} - {match.away_score ?? ''}
-                </span>
+                <div className="text-lg font-bold text-gray-900 flex-shrink-0">
+                  <span>{match.home_score ?? ''}</span>
+                  <span className="mx-1">-</span>
+                  <span>{match.away_score ?? ''}</span>
+                </div>
                 <img src={timesInfo[match.away_team]?.escudo} alt={match.away_team} className="h-6 w-6" />
-                <div className="text-sm font-semibold text-gray-800 text-left w-24 truncate">
+                <div className="text-sm font-semibold text-gray-800 text-left w-16 sm:w-24 truncate">
                   <span className="hidden sm:inline">{timesInfo[match.away_team]?.nome || match.away_team}</span>
                   <span className="sm:hidden">{timesInfo[match.away_team]?.abrev || match.away_team}</span>
                 </div>
