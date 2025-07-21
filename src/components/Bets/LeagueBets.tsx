@@ -23,6 +23,23 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
     }
   }, [displayedRound, selectedRound]);
 
+  const betsByMatch = useMemo(() => {
+    const now = new Date();
+    return bets
+      .filter(bet => new Date(bet.match.match_date) <= now)
+      .reduce((acc, bet) => {
+        const match = bet.match;
+        if (!acc[match.id]) {
+          acc[match.id] = {
+            match,
+            bets: [],
+          };
+        }
+        acc[match.id].bets.push(bet);
+        return acc;
+      }, {} as Record<string, { match: any; bets: Bet[] }>);
+  }, [bets]);
+
   const getResultColor = (bet: Bet) => {
     if (bet.match.status !== 'finished' && bet.match.status !== 'live') return 'text-gray-500';
     if (bet.is_exact) return 'text-green-600';
@@ -65,67 +82,63 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {bets.map(bet => {
-          const badge = getResultBadge(bet);
-          return (
-            <div key={bet.id} className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  <div className="w-7 h-7 bg-gray-200 rounded-full flex items-center justify-center">
-                    <span className="font-bold text-xs text-gray-600">
-                      {bet.user.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-sm text-gray-800">{bet.user.name}</h4>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3 text-gray-500" />
-                      <span className="text-xs text-gray-600">
-                        {format(new Date(bet.match.match_date), 'dd/MM HH:mm', { locale: ptBR })}
+      <div className="space-y-4">
+        {Object.values(betsByMatch).map(({ match, bets }) => (
+          <div key={match.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-3 bg-gray-50 border-b border-gray-200">
+              <div className="flex items-center justify-center space-x-3">
+                <span className="text-sm font-semibold text-gray-800 text-right w-24 truncate">
+                  {timesInfo[match.home_team]?.nome || match.home_team}
+                </span>
+                <img src={timesInfo[match.home_team]?.escudo} alt={match.home_team} className="h-6 w-6" />
+                <span className="text-lg font-bold text-gray-900">
+                  {match.home_score ?? 'vs'}
+                </span>
+                <img src={timesInfo[match.away_team]?.escudo} alt={match.away_team} className="h-6 w-6" />
+                <span className="text-sm font-semibold text-gray-800 text-left w-24 truncate">
+                  {timesInfo[match.away_team]?.nome || match.away_team}
+                </span>
+              </div>
+              <div className="text-center text-xs text-gray-500 mt-1">
+                {format(new Date(match.match_date), 'dd/MM HH:mm', { locale: ptBR })}
+              </div>
+            </div>
+            <div className="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {bets.map(bet => {
+                const badge = getResultBadge(bet);
+                return (
+                  <div key={bet.id} className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                          <span className="font-bold text-xs text-gray-600">
+                            {bet.user.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <h4 className="font-semibold text-sm text-gray-800 truncate">{bet.user.name}</h4>
+                      </div>
+                      <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${badge.color}`}>
+                        {badge.text}
                       </span>
                     </div>
-                  </div>
-                </div>
-                <span className={`text-xs font-medium px-2 py-1 rounded-full ${badge.color}`}>
-                  {badge.text}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-center space-x-2 my-3">
-                <span className="text-sm font-bold text-gray-800 text-right w-12 truncate">
-                  {timesInfo[bet.match.home_team]?.abrev || bet.match.home_team}
-                </span>
-                <img src={timesInfo[bet.match.home_team]?.escudo} alt={bet.match.home_team} className="h-6 w-6" />
-                <span className="text-lg font-bold text-gray-900">{bet.home_score}</span>
-                <span className="text-sm text-gray-500">-</span>
-                <span className="text-lg font-bold text-gray-900">{bet.away_score}</span>
-                <img src={timesInfo[bet.match.away_team]?.escudo} alt={bet.match.away_team} className="h-6 w-6" />
-                <span className="text-sm font-bold text-gray-800 text-left w-12 truncate">
-                  {timesInfo[bet.match.away_team]?.abrev || bet.match.away_team}
-                </span>
-              </div>
-
-              {(bet.match.status === 'finished' || bet.match.status === 'live') && bet.match.home_score !== null && (
-                <div className="text-xs text-gray-600 pt-2 border-t border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <span>Resultado: {bet.match.home_score}-{bet.match.away_score}</span>
+                    <div className="text-center text-lg font-bold text-gray-800 my-1">
+                      {bet.home_score} - {bet.away_score}
+                    </div>
                     {bet.points !== null && (
-                      <div className="flex items-center space-x-1">
-                        <span className="font-bold">{bet.points}pts</span>
-                        {bet.is_exact && <Target className="w-3.5 h-3.5 text-green-500" />}
+                      <div className="text-xs text-center text-gray-600 font-semibold">
+                        {bet.points}pts
                       </div>
                     )}
                   </div>
-                </div>
-              )}
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
       {/* Estado Vazio */}
-      {bets.length === 0 && (
+      {Object.keys(betsByPlayer).length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="w-16 h-16 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <Trophy className="w-8 h-8 text-white" />
