@@ -135,7 +135,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
       </div>
 
       {/* Estado Vazio */}
-      {Object.keys(betsByPlayer).length === 0 && (
+      {Object.keys(betsByMatch).length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="w-16 h-16 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <Trophy className="w-8 h-8 text-white" />
