@@ -105,8 +105,8 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
         </div>
       </div>
 
-      {/* Lista de Jogadores em Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+       {/* Lista Compacta de Jogadores */}
+      <div className="space-y-2">
         {Object.values(betsByPlayer).map(({ player, bets }) => {
           const isExpanded = expandedPlayers.has(player.id);
           const stats = getPlayerStats(bets);
