@@ -50,21 +50,6 @@ const dbHelpers = {
     return result[0];
   },
 
-  async getBetsByMatchId(matchId) {
-    return await sql`
-      SELECT * FROM bets WHERE match_id = ${matchId}
-    `;
-  },
-
-  async updateBetPoints(betId, points) {
-    const result = await sql`
-      UPDATE bets SET points = ${points}, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ${betId}
-      RETURNING *
-    `;
-    return result[0];
-  },
-
   async updateUser(id, updates) {
     const fields = Object.keys(updates).map(key => {
       if (key === 'password') {
@@ -436,8 +421,25 @@ const dbHelpers = {
 
   // Rankings
   async getLeagueRanking(leagueId, round) {
+    // Helper function to fetch rounds won data
+    const getRoundsWonData = async () => {
+      const roundsWonData = await sql`
+        SELECT
+          rw.user_id,
+          ARRAY_AGG(rw.round_number ORDER BY rw.round_number) as rounds_won_list
+        FROM round_winners rw
+        WHERE rw.league_id = ${leagueId}
+        GROUP BY rw.user_id
+      `;
+      const roundsWonMap = new Map();
+      roundsWonData.forEach(row => {
+        roundsWonMap.set(row.user_id, row.rounds_won_list || []);
+      });
+      return roundsWonMap;
+    };
+
+    // Always calculate ranking on the fly if a specific round is requested
     if (round) {
-      // Ranking for a specific round
       const result = await sql`
         SELECT
           b.user_id,
@@ -458,8 +460,8 @@ const dbHelpers = {
       return result.map(row => ({
         ...row,
         league_id: leagueId,
-        rounds_won: 0, // For specific round view, rounds_won doesn't apply
-        rounds_won_list: [], // No specific rounds list for single round view
+        rounds_won: 0,
+        rounds_won_list: [],
         user: {
           id: row.user_id,
           name: row.user_name,
@@ -469,51 +471,45 @@ const dbHelpers = {
       }));
     }
 
-    // General ranking
-    const result = await sql`
-      SELECT
-        us.*,
-        u.id as user_id,
-        u.name as user_name,
-        u.email as user_email,
-        u.avatar as user_avatar
-      FROM user_stats us
-      INNER JOIN users u ON us.user_id = u.id
-      WHERE us.league_id = ${leagueId}
-      ORDER BY us.total_points DESC, us.rounds_won DESC, us.exact_scores DESC
-    `;
+    // For 'all' rounds, we will also calculate on the fly to get live results
+    const liveRankingResult = await sql`
+        SELECT
+          b.user_id,
+          u.name as user_name,
+          u.email as user_email,
+          u.avatar as user_avatar,
+          SUM(b.points) as total_points,
+          COUNT(CASE WHEN b.is_exact THEN 1 END) as exact_scores,
+          COUNT(b.id) as total_bets,
+          COUNT(CASE WHEN b.points > 0 THEN 1 END) as correct_results
+        FROM bets b
+        INNER JOIN users u ON b.user_id = u.id
+        WHERE b.league_id = ${leagueId}
+        GROUP BY b.user_id, u.name, u.email, u.avatar
+        ORDER BY total_points DESC, exact_scores DESC
+      `;
 
-    // Get detailed rounds won for each user
-    const roundsWonData = await sql`
-      SELECT 
-        rw.user_id,
-        ARRAY_AGG(rw.round_number ORDER BY rw.round_number) as rounds_won_list
-      FROM round_winners rw
-      WHERE rw.league_id = ${leagueId}
-      GROUP BY rw.user_id
-    `;
+    const roundsWonMap = await getRoundsWonData();
 
-    const roundsWonMap = new Map();
-    roundsWonData.forEach(row => {
-      roundsWonMap.set(row.user_id, row.rounds_won_list || []);
+    return liveRankingResult.map(row => {
+      const roundsWonList = roundsWonMap.get(row.user_id) || [];
+      return {
+        user_id: row.user_id,
+        league_id: leagueId,
+        total_points: row.total_points,
+        exact_scores: row.exact_scores,
+        total_bets: row.total_bets,
+        correct_results: row.correct_results,
+        rounds_won: roundsWonList.length,
+        rounds_won_list: roundsWonList,
+        user: {
+          id: row.user_id,
+          name: row.user_name,
+          email: row.user_email,
+          avatar: row.user_avatar
+        }
+      };
     });
-
-    return result.map(row => ({
-      user_id: row.user_id,
-      league_id: row.league_id,
-      total_points: row.total_points,
-      exact_scores: row.exact_scores,
-      total_bets: row.total_bets,
-      correct_results: row.correct_results,
-      rounds_won: row.rounds_won || 0,
-      rounds_won_list: roundsWonMap.get(row.user_id) || [],
-      user: {
-        id: row.user_id,
-        name: row.user_name,
-        email: row.user_email,
-        avatar: row.user_avatar
-      }
-    }));
   },
 
   // Get detailed rounds won for a specific player

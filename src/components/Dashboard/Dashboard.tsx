@@ -10,7 +10,8 @@ import { RankingTable } from '../Ranking/RankingTable';
 import { BetHistory } from '../Bets/BetHistory';
 import { LeagueBets } from '../Bets/LeagueBets';
 import { useLeagues } from '../../hooks/useLeagues';
-import { useData } from '../../hooks/useData';
+import { useRanking } from '../../hooks/useRanking';
+import { useMatches } from '../../hooks/useMatches';
 
 interface DashboardProps {
   user: AuthUser;
@@ -23,20 +24,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>(undefined);
   
   const { leagues, loading: leaguesLoading, createLeague, joinLeague } = useLeagues(user.id);
-  const { matches, ranking, loading: dataLoading, error: dataError, displayedRound, refreshData } = useData(selectedLeague?.id || '', selectedRound);
+  const { ranking, loading: rankingLoading, displayedRound: rankingDisplayedRound } = useRanking(selectedLeague?.id || '', selectedRound);
+  const { matches, loading: matchesLoading, error: matchesError, displayedRound: matchesDisplayedRound, refreshMatches } = useMatches(selectedRound);
 
   useEffect(() => {
-    if (displayedRound !== undefined && selectedRound !== displayedRound && selectedRound !== 'all') {
+    if (rankingDisplayedRound !== undefined && selectedRound !== rankingDisplayedRound && selectedRound !== 'all') {
       if (selectedRound === undefined) {
-        setSelectedRound(displayedRound);
+        setSelectedRound(rankingDisplayedRound);
       }
     }
-  }, [displayedRound, selectedRound]);
+  }, [rankingDisplayedRound, selectedRound]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     if (tab === 'matches') {
-      refreshData();
+      refreshMatches();
     }
   };
 
@@ -95,9 +97,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
               league={selectedLeague}
               userId={user.id}
               matches={matches}
-              loading={dataLoading}
-              error={dataError}
-              displayedRound={displayedRound}
+              loading={matchesLoading}
+              error={matchesError}
+              displayedRound={matchesDisplayedRound}
               selectedRound={selectedRound}
               onRoundChange={setSelectedRound}
             />

@@ -179,7 +179,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 Sua aposta: {userBet.home_score} - {userBet.away_score}
               </span>
             </div>
-            {match.status === 'finished' && userBet.points !== null && (
+            {(match.status === 'finished' || match.status === 'live') && userBet.points !== null && (
               <div className="flex items-center space-x-2 ml-6 sm:ml-0">
                 <Trophy className="w-4 h-4 text-yellow-600 flex-shrink-0" />
                 <span className="text-sm font-medium text-gray-700">
@@ -192,7 +192,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 )}
               </div>
             )}
-            {match.status === 'finished' && userBet.points === null && (
+            {(match.status === 'finished' || match.status === 'live') && userBet.points === null && (
               <span className="text-xs text-gray-500 ml-6 sm:ml-0">Calculando pontos...</span>
             )}
           </div>

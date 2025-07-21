@@ -87,14 +87,9 @@ exports.handler = async function(event, context) {
       }
     }
 
-    for (const round of roundsToFetch) {
-      const updateBetsUrl = `${process.env.URL}/.netlify/functions/update-bets?round=${round}`;
-      await axios.get(updateBetsUrl);
-    }
-
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Matches populated and bets updated successfully' }),
+      body: JSON.stringify({ message: 'Matches populated successfully' }),
     };
   } catch (error) {
     console.error('Error populating matches:', error);

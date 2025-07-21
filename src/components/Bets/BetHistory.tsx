@@ -30,21 +30,21 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
       case 'pending':
         return bet.match.status === 'scheduled';
       case 'finished':
-        return bet.match.status === 'finished';
+        return bet.match.status === 'finished' || bet.match.status === 'live';
       default:
         return true;
     }
   });
 
   const getResultColor = (bet: Bet) => {
-    if (bet.match.status !== 'finished') return 'text-gray-500';
+    if (bet.match.status !== 'finished' && bet.match.status !== 'live') return 'text-gray-500';
     if (bet.is_exact) return 'text-green-600';
     if (bet.points && bet.points > 0) return 'text-blue-600';
     return 'text-red-600';
   };
 
   const getResultText = (bet: Bet) => {
-    if (bet.match.status !== 'finished') return 'Pendente';
+    if (bet.match.status !== 'finished' && bet.match.status !== 'live') return 'Pendente';
     if (bet.is_exact) return 'Placar Exato!';
     if (bet.points && bet.points > 0) return 'Resultado Correto';
     return 'Errou';
@@ -155,7 +155,7 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
                 <div className="text-center px-2">
                   <div className="text-xs text-gray-500 mb-1">VS</div>
                   <div className="text-xs text-gray-500 font-medium">
-                    {bet.match.status === 'finished' && bet.match.home_score !== null
+                    {(bet.match.status === 'finished' || bet.match.status === 'live') && bet.match.home_score !== null
                       ? `${bet.match.home_score}-${bet.match.away_score}`
                       : 'Aguardando'
                     }
@@ -174,7 +174,7 @@ export const BetHistory: React.FC<BetHistoryProps> = ({ league, userId }) => {
             </div>
 
             {/* Rodapé com pontos */}
-            {bet.match.status === 'finished' && bet.points !== null && (
+            {(bet.match.status === 'finished' || bet.match.status === 'live') && bet.points !== null && (
               <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200">
                 <div className="flex items-center space-x-1">
                   <Trophy className="w-4 h-4 text-yellow-500" />

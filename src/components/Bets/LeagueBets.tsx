@@ -54,25 +54,25 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
   };
 
   const getResultColor = (bet: Bet) => {
-    if (bet.match.status !== 'finished') return 'text-gray-500';
+    if (bet.match.status !== 'finished' && bet.match.status !== 'live') return 'text-gray-500';
     if (bet.is_exact) return 'text-green-600';
     if (bet.points && bet.points > 0) return 'text-blue-600';
     return 'text-red-600';
   };
 
   const getResultBadge = (bet: Bet) => {
-    if (bet.match.status !== 'finished') return { text: 'P', color: 'bg-gray-100 text-gray-600' };
+    if (bet.match.status !== 'finished' && bet.match.status !== 'live') return { text: 'P', color: 'bg-gray-100 text-gray-600' };
     if (bet.is_exact) return { text: 'E', color: 'bg-green-100 text-green-700' };
     if (bet.points && bet.points > 0) return { text: 'C', color: 'bg-blue-100 text-blue-700' };
     return { text: 'X', color: 'bg-red-100 text-red-700' };
   };
 
   const getPlayerStats = (bets: Bet[]) => {
-    const finished = bets.filter(bet => bet.match.status === 'finished');
-    const exact = finished.filter(bet => bet.is_exact).length;
-    const correct = finished.filter(bet => bet.points && bet.points > 0 && !bet.is_exact).length;
-    const total = finished.length;
-    const points = finished.reduce((sum, bet) => sum + (bet.points || 0), 0);
+    const processed = bets.filter(bet => bet.match.status === 'finished' || bet.match.status === 'live');
+    const exact = processed.filter(bet => bet.is_exact).length;
+    const correct = processed.filter(bet => bet.points && bet.points > 0 && !bet.is_exact).length;
+    const total = processed.length;
+    const points = processed.reduce((sum, bet) => sum + (bet.points || 0), 0);
 
     return { exact, correct, total, points };
   };
@@ -190,7 +190,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
                           </div>
 
                             {/* Resultado Real - Mobile Otimizado */}
-                            {bet.match.status === 'finished' && bet.match.home_score !== null && (
+                            {(bet.match.status === 'finished' || bet.match.status === 'live') && bet.match.home_score !== null && (
                               <div className="text-xs text-gray-500 pt-1 border-t border-gray-200 mt-2">
                                 <div className="flex items-center justify-between">
                                   <span>Real: {bet.match.home_score}-{bet.match.away_score}</span>
