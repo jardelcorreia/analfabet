@@ -123,7 +123,7 @@ export const MatchList: React.FC<MatchListProps> = ({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header with improved mobile layout */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg p-4 mb-4 text-white">
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-800 dark:to-emerald-900 rounded-lg p-4 mb-4 text-white">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold">Jogos</h1>

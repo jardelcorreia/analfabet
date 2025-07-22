@@ -218,7 +218,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 setAwayScore(userBet?.away_score ?? null);
                 setShowBetForm(true);
               }}
-              className="w-full px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
+              className="w-full px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
             >
               {userBet ? 'Alterar Aposta' : 'Fazer Aposta'}
             </button>
@@ -276,7 +276,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg disabled:opacity-50 text-sm sm:text-base font-medium"
+                  className="flex-1 px-4 py-2 sm:py-3 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg disabled:opacity-50 text-sm sm:text-base font-medium"
                 >
                   {loading ? 'Salvando...' : 'Confirmar'}
                 </button>
