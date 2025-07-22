@@ -20,7 +20,7 @@ const roundSelectorStyles = cva(
 const labelStyles = cva('text-sm font-medium whitespace-nowrap', {
   variants: {
     variant: {
-      default: 'text-gray-700',
+      default: 'text-gray-700 dark:text-gray-300',
       onGradient: 'text-white/90',
     },
   },
@@ -32,7 +32,7 @@ const selectStyles = cva(
     variants: {
       variant: {
         default:
-          'bg-white border border-gray-300 focus:ring-blue-500 focus:border-transparent hover:border-gray-400',
+          'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 dark:hover:border-gray-500 [color-scheme:light] dark:[color-scheme:dark]',
         onGradient:
           'bg-white/10 text-white border border-white/30 backdrop-blur-sm focus:ring-white/50 focus:border-white/50 hover:border-white/50',
       },
@@ -43,15 +43,15 @@ const selectStyles = cva(
 const arrowStyles = cva('w-4 h-4', {
   variants: {
     variant: {
-      default: 'text-gray-400',
+      default: 'text-gray-400 dark:text-gray-300',
       onGradient: 'text-white/70',
     },
   },
 });
 
 interface RoundSelectorProps extends VariantProps<typeof roundSelectorStyles> {
-  selectedRound: number | undefined;
-  onRoundChange: (round: number | undefined) => void;
+  selectedRound: number | 'all' | undefined;
+  onRoundChange: (round: number | 'all' | undefined) => void;
   totalRounds: number;
   className?: string;
 }
@@ -73,29 +73,37 @@ export const RoundSelector: React.FC<RoundSelectorProps> = ({
       <div className="relative">
         <select
           id="round-selector"
-          value={selectedRound || ''}
-          onChange={(e) => onRoundChange(e.target.value ? parseInt(e.target.value, 10) : undefined)}
+          value={selectedRound === 'all' ? 'all' : selectedRound || ''}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === 'all') {
+              onRoundChange('all');
+            } else if (value === '') {
+              onRoundChange(undefined);
+            } else {
+              onRoundChange(parseInt(value, 10));
+            }
+          }}
           className={selectStyles({ variant })}
         >
-          <option value="" className="text-gray-900 bg-white">
-            📊 Todas as rodadas
+          <option value="all" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+            🏆 Todas as rodadas
           </option>
           {rounds.map((round) => (
-            <option key={round} value={round} className="text-gray-900 bg-white">
-              🏆 Rodada {round}
+            <option key={round} value={round} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+              ⚽ Rodada {round}
             </option>
           ))}
         </select>
-
         <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
           <ChevronDown className={arrowStyles({ variant })} />
         </div>
       </div>
-
       {variant === 'default' && (
         <div className="sm:hidden">
-          <p className="text-xs text-gray-500 mt-1">
-            {selectedRound ? `Visualizando rodada ${selectedRound}` : 'Visualizando todas as rodadas'}
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {selectedRound === 'all' ? 'Visualizando todas as rodadas' : 
+             selectedRound ? `Visualizando rodada ${selectedRound}` : 'Visualizando rodada atual'}
           </p>
         </div>
       )}

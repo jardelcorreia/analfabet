@@ -1,5 +1,5 @@
-import React from 'react';
-import { Trophy, User, LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trophy, User, LogOut, Sun, Moon } from 'lucide-react';
 import { extendSession, getRememberMe } from '../../lib/storage';
 
 interface HeaderProps {
@@ -8,6 +8,23 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ userName, onSignOut }) => {
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => localStorage.getItem('theme') === 'dark'
+  );
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
   // Extend session on user activity if remember me is enabled
   React.useEffect(() => {
     const handleUserActivity = () => {
@@ -42,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({ userName, onSignOut }) => {
   }, []);
 
   return (
-    <header className="bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg">
+    <header className="bg-gradient-to-r from-green-600 to-green-700 dark:from-gray-800 dark:to-gray-900 text-white shadow-lg">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -51,13 +68,19 @@ export const Header: React.FC<HeaderProps> = ({ userName, onSignOut }) => {
           </div>
 
           <div className="flex items-center space-x-4">
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-full hover:bg-white/10 transition-colors"
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
             <div className="flex items-center space-x-2">
               <User className="w-5 h-5" />
               <span className="font-medium">{userName}</span>
             </div>
             <button
               onClick={onSignOut}
-              className="flex items-center space-x-1 px-3 py-2 rounded-lg bg-green-500 hover:bg-green-400 transition-colors"
+              className="flex items-center space-x-1 px-3 py-2 rounded-lg bg-green-500 hover:bg-green-400 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
             >
               <LogOut className="w-4 h-4" />
               <span>Sair</span>

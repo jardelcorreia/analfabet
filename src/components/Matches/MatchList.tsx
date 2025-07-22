@@ -1,48 +1,40 @@
 import React, { useState } from 'react';
-import { Calendar, Filter } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { League, Match, Bet } from '../../types';
 import { MatchCard } from './MatchCard';
-import { useMatches } from '../../hooks/useMatches';
 import { dbHelpers } from '../../lib/database';
+import { RoundSelector } from '../Ranking/RoundSelector';
 
 interface MatchListProps {
   league: League;
   userId: string;
+  matches: Match[];
+  loading: boolean;
+  error: string | null;
+  displayedRound: number | undefined;
+  selectedRound: number | 'all' | undefined;
+  onRoundChange: (round: number | 'all' | undefined) => void;
 }
 
-export const MatchList: React.FC<MatchListProps> = ({ league, userId }) => {
-  // selectedRound is what the user picks, or undefined for the server's default.
-  // It's passed as the `round` prop to useMatches.
-  const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>();
+export const MatchList: React.FC<MatchListProps> = ({
+  league,
+  userId,
+  matches,
+  loading,
+  error,
+  displayedRound,
+  selectedRound,
+  onRoundChange,
+}) => {
   const [userBets, setUserBets] = useState<Bet[]>([]);
 
-  // useMatches now returns `displayedRound` which is the actual round data is for.
-  const { matches, loading, error, displayedRound, refreshMatches } = useMatches(selectedRound);
-
-  // Effect to sync the dropdown's selectedRound with the displayedRound from the hook,
-  // especially when the server determines the default round.
   React.useEffect(() => {
-    // If displayedRound is defined (meaning data has loaded for a specific round,
-    // either user-selected or server-default) and it's different from what the
-    // user might have selected (or if selectedRound is undefined meaning we want default),
-    // update selectedRound to match.
-    // This ensures the dropdown accurately reflects the data being shown.
-    // Only update if selectedRound is not already matching displayedRound to avoid loops if user selects.
-    if (displayedRound !== undefined && selectedRound !== displayedRound) {
-        // However, if selectedRound was intentionally set to `undefined` by the user
-        // (e.g. choosing "Todas as rodadas"), and the server returns a specific default round,
-        // we DO want to update selectedRound to that default.
-        // This logic needs to be careful to not override user's explicit selection of "Todas as rodadas"
-        // if that's a desired state that means "let server decide" vs "show nothing specific".
-        // For now, let's assume if `selectedRound` is undefined, we want it to take server's default.
-        // If `selectedRound` has a value, it means user picked it, so `useMatches` used it.
-        // The `displayedRound` from server should match `selectedRound` if `selectedRound` was provided.
-        // The main case this handles is initial load where `selectedRound` is undefined.
-        if (selectedRound === undefined) {
-             setSelectedRound(displayedRound);
-        }
+    if (displayedRound !== undefined && selectedRound !== displayedRound && selectedRound !== 'all') {
+      if (selectedRound === undefined) {
+        onRoundChange(displayedRound);
+      }
     }
-  }, [displayedRound, selectedRound]);
+  }, [displayedRound, selectedRound, onRoundChange]);
 
   React.useEffect(() => {
     const fetchUserBets = async () => {
@@ -123,7 +115,7 @@ export const MatchList: React.FC<MatchListProps> = ({ league, userId }) => {
   if (error) {
     return (
       <div className="text-center py-12 px-4">
-        <p className="text-red-600 text-sm sm:text-base">Erro ao carregar jogos: {error}</p>
+        <p className="text-red-600 dark:text-red-400 text-sm sm:text-base">Erro ao carregar jogos: {error}</p>
       </div>
     );
   }
@@ -131,29 +123,20 @@ export const MatchList: React.FC<MatchListProps> = ({ league, userId }) => {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header with improved mobile layout */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Jogos</h2>
-        <div className="flex items-center space-x-2">
-          <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
-          <select
-            value={selectedRound || ''}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === 'all') {
-                setSelectedRound('all');
-              } else {
-                setSelectedRound(Number(value));
-              }
-            }}
-            className="flex-1 min-w-0 px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="all">Todas as rodadas</option>
-            {rounds.map(round => (
-              <option key={round} value={round}>
-                {round}ª Rodada
-              </option>
-            ))}
-          </select>
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg p-4 mb-4 text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold">Jogos</h1>
+            <p className="text-green-100 text-sm">Faça suas apostas</p>
+          </div>
+          <div className="w-full sm:w-auto">
+            <RoundSelector
+              selectedRound={selectedRound}
+              onRoundChange={onRoundChange}
+              totalRounds={38}
+              variant="onGradient"
+            />
+          </div>
         </div>
       </div>
 
@@ -176,12 +159,12 @@ export const MatchList: React.FC<MatchListProps> = ({ league, userId }) => {
 
       {/* Empty state with responsive design */}
       {matches.length === 0 && (
-        <div className="text-center py-8 sm:py-12 bg-gray-50 rounded-lg mx-4 sm:mx-0">
-          <Calendar className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-base sm:text-lg font-semibold text-gray-600 mb-2">
+        <div className="text-center py-8 sm:py-12 bg-gray-50 dark:bg-gray-800 rounded-lg mx-4 sm:mx-0">
+          <Calendar className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h3 className="text-base sm:text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
             Nenhum jogo encontrado
           </h3>
-          <p className="text-sm sm:text-base text-gray-500 px-4">
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4">
             {selectedRound ? `Não há jogos para a ${selectedRound}ª rodada` : 'Não há jogos disponíveis'}
           </p>
         </div>

@@ -7,10 +7,10 @@ import { LeagueList } from '../Leagues/LeagueList';
 import { LeagueMembers } from '../Leagues/LeagueMembers';
 import { MatchList } from '../Matches/MatchList';
 import { RankingTable } from '../Ranking/RankingTable';
-import { BetHistory } from '../Bets/BetHistory';
 import { LeagueBets } from '../Bets/LeagueBets';
 import { useLeagues } from '../../hooks/useLeagues';
 import { useRanking } from '../../hooks/useRanking';
+import { useMatches } from '../../hooks/useMatches';
 
 interface DashboardProps {
   user: AuthUser;
@@ -23,18 +23,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [selectedRound, setSelectedRound] = useState<number | 'all' | undefined>(undefined);
   
   const { leagues, loading: leaguesLoading, createLeague, joinLeague } = useLeagues(user.id);
-  const { ranking, loading: rankingLoading, displayedRound } = useRanking(selectedLeague?.id || '', selectedRound);
+  const { ranking, loading: rankingLoading, displayedRound: rankingDisplayedRound } = useRanking(selectedLeague?.id || '', selectedRound);
+  const { matches, loading: matchesLoading, error: matchesError, displayedRound: matchesDisplayedRound, refreshMatches } = useMatches(selectedRound);
 
   useEffect(() => {
-    if (displayedRound !== undefined && selectedRound !== displayedRound) {
+    if (rankingDisplayedRound !== undefined && selectedRound !== rankingDisplayedRound && selectedRound !== 'all') {
       if (selectedRound === undefined) {
-        setSelectedRound(displayedRound);
+        setSelectedRound(rankingDisplayedRound);
       }
     }
-  }, [displayedRound, selectedRound]);
+  }, [rankingDisplayedRound, selectedRound]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    if (tab === 'matches') {
+      refreshMatches();
+    }
   };
 
   const handleSelectLeague = (league: League) => {
@@ -91,6 +95,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
             <MatchList
               league={selectedLeague}
               userId={user.id}
+              matches={matches}
+              loading={matchesLoading}
+              error={matchesError}
+              displayedRound={matchesDisplayedRound}
+              selectedRound={selectedRound}
+              onRoundChange={setSelectedRound}
             />
           </div>
         ) : (
@@ -133,10 +143,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
       case 'bets':
         return selectedLeague ? (
           <div className="animate-fadeIn">
-            <BetHistory
-              league={selectedLeague}
-              userId={user.id}
-            />
+            <LeagueBets league={selectedLeague} />
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -147,7 +154,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-gray-900">Nenhuma Liga Selecionada</h3>
-              <p className="text-gray-500 max-w-sm">Selecione uma liga para ver o histórico de suas apostas</p>
+              <p className="text-gray-500 max-w-sm">Selecione uma liga para ver as apostas dos membros</p>
             </div>
           </div>
         );
@@ -175,7 +182,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <Header
         userName={user.name || user.email}
         onSignOut={onSignOut}
@@ -183,7 +190,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
       <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
       
       {selectedLeague && activeTab !== 'leagues' && (
-        <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center space-x-3">
@@ -193,10 +200,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                     {selectedLeague.name}
                   </h2>
-                  <p className="text-sm text-gray-500 hidden sm:block">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
                     Liga selecionada
                   </p>
                 </div>

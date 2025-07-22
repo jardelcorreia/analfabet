@@ -1,134 +1,134 @@
 # AnalfaBet
 
-Sistema de apostas entre amigos para o Campeonato Brasileiro.
+A betting system for friends for the Brazilian Championship.
 
-## 🚀 Funcionalidades
+## 🚀 Features
 
-- **Autenticação**: Sistema completo de login e registro
-- **Ligas Privadas**: Crie ligas entre amigos com códigos únicos
-- **Apostas em Tempo Real**: Aposte nos placares dos jogos do Brasileirão
-- **Sistema de Pontuação**: 
-  - 3 pontos para placar exato
-  - 1 ponto para resultado correto (vitória/empate/derrota)
-- **Ranking Dinâmico**: Acompanhe sua posição com desempate por placares exatos
-- **Histórico Completo**: Visualize todas suas apostas e resultados
+- **Authentication**: Complete login and registration system
+- **Private Leagues**: Create leagues among friends with unique codes
+- **Real-Time Betting**: Bet on the scores of the Brasileirão games
+- **Scoring System**:
+  - 3 points for the exact score
+  - 1 point for the correct result (win/draw/loss)
+- **Dynamic Ranking**: Track your position with tie-breaking by exact scores
+- **Complete History**: View all your bets and results
 
-## 🛠️ Tecnologias
+## 🛠️ Technologies
 
 - **Frontend**: React 18 + TypeScript + Tailwind CSS
-- **Database**: Neon PostgreSQL
-- **API**: football-data.org para dados dos jogos
-- **Deploy**: Netlify
+- **Database**: Neon (PostgreSQL)
+- **API**: TheSportsDB.com for game data
+- **Deployment**: Netlify
 - **Icons**: Lucide React
 
-## ⚙️ Configuração
+## ⚙️ Setup
 
-### 1. Clone e instale dependências
+### 1. Clone and install dependencies
 ```bash
 git clone <repository-url>
 cd analfa-bet
 npm install
 ```
 
-### 2. Configure o banco de dados Neon
-1. Acesse [neon.tech](https://neon.tech) e crie uma conta
-2. Crie um novo projeto PostgreSQL
-3. Execute o script SQL em `database/schema.sql` no console SQL do Neon
-4. Copie a string de conexão
+### 2. Configure Neon Database
+1. Go to [neon.tech](https://neon.tech) and create an account.
+2. Create a new PostgreSQL project.
+3. Apply the database migrations located in the `supabase/migrations` directory. You can do this by running the SQL files manually in the Neon SQL editor.
+4. Copy the connection string.
 
-### 3. Configure variáveis de ambiente
-Copie `.env.example` para `.env` e configure:
+### 3. Configure environment variables
+Create a `.env` file in the root of the project and add the following variables:
 
 ```env
-VITE_DATABASE_URL=postgresql://username:password@ep-example.us-east-1.aws.neon.tech/neondb?sslmode=require
-VITE_FOOTBALL_API_KEY=your_football_api_key_from_football_data_org
-VITE_JWT_SECRET=your_secure_jwt_secret_key
+VITE_DATABASE_URL=<your-neon-connection-string>
+VITE_JWT_SECRET=<your-secure-jwt-secret>
+VITE_SPORTSDB_API_KEY=<your-thesportsdb-api-key>
 ```
 
-### 4. Execute o projeto
+### 4. Run the project
 ```bash
 npm run dev
 ```
 
-## 🎯 Como Usar
+## 🎯 How to Use
 
-1. **Registre-se** ou faça login na plataforma
-2. **Crie uma liga** ou entre em uma existente usando o código
-3. **Faça suas apostas** nos jogos agendados do Brasileirão
-4. **Acompanhe o ranking** e veja seus resultados em tempo real
+1. **Register** or log in to the platform
+2. **Create a league** or join an existing one using the code
+3. **Place your bets** on the scheduled Brasileirão games
+4. **Track the ranking** and see your results in real time
 
-## 🏆 Sistema de Pontuação
+## 🏆 Scoring System
 
-- **Placar Exato**: 3 pontos (ex: apostou 2x1, resultado foi 2x1)
-- **Resultado Correto**: 1 ponto (ex: apostou 2x1, resultado foi 3x0 - ambos vitória do mandante)
-- **Resultado Errado**: 0 pontos
+- **Exact Score**: 3 points (e.g., you bet 2x1, the result was 2x1)
+- **Correct Result**: 1 point (e.g., you bet 2x1, the result was 3x0 - both are home team wins)
+- **Wrong Result**: 0 points
 
 ## 📊 Ranking
 
-O ranking é ordenado por:
-1. **Total de pontos** (maior para menor)
-2. **Placares exatos** (desempate - maior para menor)
-3. **Data de entrada na liga** (mais antigo primeiro)
+The ranking is sorted by:
+1. **Total points** (highest to lowest)
+2. **Exact scores** (tie-breaker - highest to lowest)
+3. **Date of entry into the league** (oldest first)
 
-## 🗄️ Estrutura do Banco
+## 🗄️ Database Structure
 
-- `users`: Dados dos usuários
-- `leagues`: Ligas criadas
-- `league_members`: Membros das ligas
-- `matches`: Jogos do brasileirão
-- `bets`: Apostas dos usuários
-- `user_stats`: Estatísticas calculadas automaticamente
+- `users`: User data
+- `leagues`: Created leagues
+- `league_members`: League members
+- `matches`: Brasileirão matches
+- `bets`: User bets
+- `user_stats`: Automatically calculated statistics
 
-## 🔧 Deploy
+## 🔧 Deployment
 
-O projeto está configurado para deploy automático no Netlify:
+The project is configured for automatic deployment on Netlify:
 
-1. Conecte seu repositório ao Netlify
-2. Configure as variáveis de ambiente no painel do Netlify
-3. O deploy será automático a cada push na branch main
+1. Connect your repository to Netlify
+2. Configure the environment variables in the Netlify panel
+3. Deployment will be automatic with every push to the main branch
 
-## 📱 Responsivo
+## 📱 Responsive
 
-Interface totalmente responsiva, otimizada para:
+Fully responsive interface, optimized for:
 - Desktop (1024px+)
 - Tablet (768px - 1023px)
 - Mobile (320px - 767px)
 
 ## 🎨 Design
 
-- Design moderno com gradientes verde/amarelo (cores do Brasil)
-- Micro-interações e animações suaves
-- Feedback visual em tempo real
-- Interface intuitiva e acessível
+- Modern design with green/yellow gradients (colors of Brazil)
+- Smooth micro-interactions and animations
+- Real-time visual feedback
+- Intuitive and accessible interface
 
-## 🔒 Segurança
+## 🔒 Security
 
-- Senhas criptografadas com bcrypt
-- Autenticação JWT com expiração
-- Validação de dados no frontend e backend
-- Proteção contra SQL injection
+- Passwords encrypted with bcrypt
+- JWT authentication with expiration
+- Data validation on the frontend and backend
+- Protection against SQL injection
 
 ## 📈 Performance
 
-- Lazy loading de componentes
-- Otimização de bundle com Vite
-- Cache de assets estáticos
-- Queries otimizadas no banco
+- Lazy loading of components
+- Bundle optimization with Vite
+- Caching of static assets
+- Optimized database queries
 
-## 🤝 Contribuição
+## 🤝 Contribution
 
-Este é um projeto de demonstração. Para contribuir:
+This is a demonstration project. To contribute:
 
-1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-## 📄 Licença
+## 📄 License
 
-MIT License - veja o arquivo LICENSE para detalhes.
+MIT License - see the LICENSE file for details.
 
 ---
 
-Desenvolvido com ❤️ para os amantes do futebol brasileiro!
+Developed with ❤️ for lovers of Brazilian football!

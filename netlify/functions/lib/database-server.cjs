@@ -421,8 +421,25 @@ const dbHelpers = {
 
   // Rankings
   async getLeagueRanking(leagueId, round) {
+    // Helper function to fetch rounds won data
+    const getRoundsWonData = async () => {
+      const roundsWonData = await sql`
+        SELECT
+          rw.user_id,
+          ARRAY_AGG(rw.round_number ORDER BY rw.round_number) as rounds_won_list
+        FROM round_winners rw
+        WHERE rw.league_id = ${leagueId}
+        GROUP BY rw.user_id
+      `;
+      const roundsWonMap = new Map();
+      roundsWonData.forEach(row => {
+        roundsWonMap.set(row.user_id, row.rounds_won_list || []);
+      });
+      return roundsWonMap;
+    };
+
+    // Always calculate ranking on the fly if a specific round is requested
     if (round) {
-      // Ranking for a specific round
       const result = await sql`
         SELECT
           b.user_id,
@@ -443,6 +460,8 @@ const dbHelpers = {
       return result.map(row => ({
         ...row,
         league_id: leagueId,
+        rounds_won: 0,
+        rounds_won_list: [],
         user: {
           id: row.user_id,
           name: row.user_name,
@@ -452,36 +471,65 @@ const dbHelpers = {
       }));
     }
 
-    // General ranking
-    const result = await sql`
-      SELECT
-        us.*,
-        u.id as user_id,
-        u.name as user_name,
-        u.email as user_email,
-        u.avatar as user_avatar
-      FROM user_stats us
-      INNER JOIN users u ON us.user_id = u.id
-      WHERE us.league_id = ${leagueId}
-      ORDER BY us.total_points DESC, us.exact_scores DESC
-    `;
+    // For 'all' rounds, we will also calculate on the fly to get live results
+    const liveRankingResult = await sql`
+        SELECT
+          b.user_id,
+          u.name as user_name,
+          u.email as user_email,
+          u.avatar as user_avatar,
+          SUM(b.points) as total_points,
+          COUNT(CASE WHEN b.is_exact THEN 1 END) as exact_scores,
+          COUNT(b.id) as total_bets,
+          COUNT(CASE WHEN b.points > 0 THEN 1 END) as correct_results
+        FROM bets b
+        INNER JOIN users u ON b.user_id = u.id
+        WHERE b.league_id = ${leagueId}
+        GROUP BY b.user_id, u.name, u.email, u.avatar
+        ORDER BY total_points DESC, exact_scores DESC
+      `;
 
-    return result.map(row => ({
-      user_id: row.user_id,
-      league_id: row.league_id,
-      total_points: row.total_points,
-      exact_scores: row.exact_scores,
-      total_bets: row.total_bets,
-      correct_results: row.correct_results,
-      user: {
-        id: row.user_id,
-        name: row.user_name,
-        email: row.user_email,
-        avatar: row.user_avatar
-      }
-    }));
+    const roundsWonMap = await getRoundsWonData();
+
+    return liveRankingResult.map(row => {
+      const roundsWonList = roundsWonMap.get(row.user_id) || [];
+      return {
+        user_id: row.user_id,
+        league_id: leagueId,
+        total_points: row.total_points,
+        exact_scores: row.exact_scores,
+        total_bets: row.total_bets,
+        correct_results: row.correct_results,
+        rounds_won: roundsWonList.length,
+        rounds_won_list: roundsWonList,
+        user: {
+          id: row.user_id,
+          name: row.user_name,
+          email: row.user_email,
+          avatar: row.user_avatar
+        }
+      };
+    });
   },
 
+  // Get detailed rounds won for a specific player
+  async getPlayerRoundsWon(playerId, leagueId) {
+    return await sql`
+      SELECT * FROM get_player_rounds_won(${playerId}, ${leagueId})
+    `;
+  },
+
+  // Get round winners for a specific round
+  async getRoundWinners(leagueId, round) {
+    return await sql`
+      SELECT * FROM get_round_winners_detailed(${leagueId}, ${round})
+    `;
+  },
+
+  // Calculate detailed rounds won for a league
+  async calculateDetailedRoundsWon(leagueId) {
+    await sql`SELECT calculate_detailed_rounds_won_for_league(${leagueId})`;
+  },
   async getUserStats(userId, leagueId) {
     const result = await sql`
       SELECT * FROM user_stats WHERE user_id = ${userId} AND league_id = ${leagueId}
