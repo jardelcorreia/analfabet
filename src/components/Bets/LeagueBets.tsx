@@ -120,7 +120,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
                       </div>
                       <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-200 truncate">{bet.user.name}</h4>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 ml-2">
                       <span className="text-lg font-bold text-gray-800 dark:text-white">
                         {bet.home_score} - {bet.away_score}
                       </span>
