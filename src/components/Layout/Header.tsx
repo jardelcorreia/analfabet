@@ -67,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({ userName, onSignOut }) => {
             <h1 className="text-2xl font-bold">AnalfaBet</h1>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -76,14 +76,14 @@ export const Header: React.FC<HeaderProps> = ({ userName, onSignOut }) => {
             </button>
             <div className="flex items-center space-x-2">
               <User className="w-5 h-5" />
-              <span className="font-medium">{userName}</span>
+              <span className="font-medium hidden sm:inline">{userName}</span>
             </div>
             <button
               onClick={onSignOut}
               className="flex items-center space-x-1 px-3 py-2 rounded-lg bg-green-500 hover:bg-green-400 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
             >
               <LogOut className="w-4 h-4" />
-              <span>Sair</span>
+              <span className="hidden sm:inline">Sair</span>
             </button>
           </div>
         </div>
