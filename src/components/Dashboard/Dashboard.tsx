@@ -186,7 +186,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <Header
         userName={user.name || user.email}
         onSignOut={onSignOut}
@@ -194,7 +194,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
       <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
       
       {selectedLeague && activeTab !== 'leagues' && (
-        <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center space-x-3">
@@ -204,10 +204,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                     {selectedLeague.name}
                   </h2>
-                  <p className="text-sm text-gray-500 hidden sm:block">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
                     Liga selecionada
                   </p>
                 </div>

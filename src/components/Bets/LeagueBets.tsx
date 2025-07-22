@@ -84,26 +84,26 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
 
       <div className="space-y-4">
         {Object.values(betsByMatch).map(({ match, bets }) => (
-          <div key={match.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-3 bg-gray-50 border-b border-gray-200">
+          <div key={match.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="p-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
               <div className="flex items-center justify-center space-x-2 sm:space-x-3">
-                <div className="text-sm font-semibold text-gray-800 text-right w-16 sm:w-24 truncate">
+                <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 text-right w-16 sm:w-24 truncate">
                   <span className="hidden sm:inline">{timesInfo[match.home_team]?.nome || match.home_team}</span>
                   <span className="sm:hidden">{timesInfo[match.home_team]?.abrev || match.home_team}</span>
                 </div>
                 <img src={timesInfo[match.home_team]?.escudo} alt={match.home_team} className="h-6 w-6" />
-                <div className="text-lg font-bold text-gray-900 flex-shrink-0">
+                <div className="text-lg font-bold text-gray-900 dark:text-white flex-shrink-0">
                   <span>{match.home_score ?? ''}</span>
                   <span className="mx-1">-</span>
                   <span>{match.away_score ?? ''}</span>
                 </div>
                 <img src={timesInfo[match.away_team]?.escudo} alt={match.away_team} className="h-6 w-6" />
-                <div className="text-sm font-semibold text-gray-800 text-left w-16 sm:w-24 truncate">
+                <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 text-left w-16 sm:w-24 truncate">
                   <span className="hidden sm:inline">{timesInfo[match.away_team]?.nome || match.away_team}</span>
                   <span className="sm:hidden">{timesInfo[match.away_team]?.abrev || match.away_team}</span>
                 </div>
               </div>
-              <div className="text-center text-xs text-gray-500 mt-1">
+              <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {format(new Date(match.match_date), 'dd/MM HH:mm', { locale: ptBR })}
               </div>
             </div>
@@ -111,21 +111,21 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
               {bets.map(bet => {
                 const badge = getResultBadge(bet);
                 return (
-                  <div key={bet.id} className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                  <div key={bet.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-2 border border-gray-200 dark:border-gray-600">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
-                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-                          <span className="font-bold text-xs text-gray-600">
+                        <div className="w-6 h-6 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                          <span className="font-bold text-xs text-gray-600 dark:text-gray-300">
                             {bet.user.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
-                        <h4 className="font-semibold text-sm text-gray-800 truncate">{bet.user.name}</h4>
+                        <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-200 truncate">{bet.user.name}</h4>
                       </div>
                       <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${badge.color}`}>
                         {badge.text}
                       </span>
                     </div>
-                    <div className="text-center text-lg font-bold text-gray-800 my-1">
+                    <div className="text-center text-lg font-bold text-gray-800 dark:text-white my-1">
                       {bet.home_score} - {bet.away_score}
                     </div>
                   </div>
