@@ -47,15 +47,32 @@ const determineDefaultRound = (allMatches, today = new Date()) => {
     defaultRound = Math.max(...roundNumbers);
   }
 
-  const nextRound = defaultRound + 1;
-  if (roundsData[nextRound]) {
+  const nextRoundNumber = defaultRound + 1;
+  if (roundsData[nextRoundNumber]) {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const nextRoundStartDate = new Date(roundsData[nextRound].startDate);
+    const nextRoundStartDate = new Date(roundsData[nextRoundNumber].startDate);
     nextRoundStartDate.setHours(0, 0, 0, 0);
 
     if (nextRoundStartDate.getTime() === tomorrow.getTime()) {
-      defaultRound = nextRound;
+      return nextRoundNumber;
+    }
+  }
+
+  // Look ahead for the next round that starts tomorrow
+  for (const roundNum of roundNumbers) {
+    if (roundNum > defaultRound) {
+      const round = roundsData[roundNum];
+      const roundStartDate = new Date(round.startDate);
+      roundStartDate.setHours(0, 0, 0, 0);
+
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      if (roundStartDate.getTime() === tomorrow.getTime()) {
+        return roundNum;
+      }
     }
   }
 
