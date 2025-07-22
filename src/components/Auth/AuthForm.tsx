@@ -192,7 +192,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSignIn, onSignUp }) => {
             <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">
               Senha
             </label>
-            <div className.relative">
+            <div className="relative">
               <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-500" />
               <input
                 type={showPassword ? "text" : "password"}
