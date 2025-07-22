@@ -7,7 +7,6 @@ import { LeagueList } from '../Leagues/LeagueList';
 import { LeagueMembers } from '../Leagues/LeagueMembers';
 import { MatchList } from '../Matches/MatchList';
 import { RankingTable } from '../Ranking/RankingTable';
-import { BetHistory } from '../Bets/BetHistory';
 import { LeagueBets } from '../Bets/LeagueBets';
 import { useLeagues } from '../../hooks/useLeagues';
 import { useRanking } from '../../hooks/useRanking';
@@ -144,10 +143,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
       case 'bets':
         return selectedLeague ? (
           <div className="animate-fadeIn">
-            <BetHistory
-              league={selectedLeague}
-              userId={user.id}
-            />
+            <LeagueBets league={selectedLeague} />
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -158,7 +154,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-gray-900">Nenhuma Liga Selecionada</h3>
-              <p className="text-gray-500 max-w-sm">Selecione uma liga para ver o histórico de suas apostas</p>
+              <p className="text-gray-500 max-w-sm">Selecione uma liga para ver as apostas dos membros</p>
             </div>
           </div>
         );
