@@ -117,7 +117,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-lg font-bold text-gray-800 dark:text-white">
-                        {bet.home_score} - {bet.away_score}
+                        {bet.home_score} : {bet.away_score}
                       </span>
                       <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${badge.color}`}>
                         {badge.text}
