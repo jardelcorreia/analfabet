@@ -132,13 +132,6 @@ export const RankingTable: React.FC<RankingTableProps> = ({
           </div>
         </div>
       </div>
-      <div className="sm:hidden p-4 bg-gray-100 dark:bg-gray-900">
-        <RoundSelector
-          selectedRound={selectedRound}
-          onRoundChange={onRoundChange}
-          totalRounds={totalRounds}
-        />
-      </div>
 
       {/* Top 3 Podium - Mobile and Desktop */}
       {ranking.length >= 3 && (
