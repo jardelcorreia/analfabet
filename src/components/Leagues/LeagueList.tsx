@@ -66,8 +66,8 @@ export const LeagueList: React.FC<LeagueListProps> = ({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Minhas Ligas</h2>
-          <p className="text-gray-600 mt-1">Gerencie suas ligas de apostas</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Minhas Ligas</h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Gerencie suas ligas de apostas</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <button
@@ -88,38 +88,38 @@ export const LeagueList: React.FC<LeagueListProps> = ({
       </div>
 
       {showCreateForm && (
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 animate-slideDown">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 animate-slideDown">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">Criar Nova Liga</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Criar Nova Liga</h3>
             <button
               onClick={() => setShowCreateForm(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
           <form onSubmit={handleCreate} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Nome da Liga *
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
                 placeholder="Ex: Amigos do Futebol"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Descrição (opcional)
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors resize-none"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors resize-none"
                 rows={3}
                 placeholder="Descrição da liga..."
               />
@@ -145,26 +145,26 @@ export const LeagueList: React.FC<LeagueListProps> = ({
       )}
 
       {showJoinForm && (
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 animate-slideDown">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 animate-slideDown">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">Entrar em Liga</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Entrar em Liga</h3>
             <button
               onClick={() => setShowJoinForm(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
           <form onSubmit={handleJoin} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Código da Liga *
               </label>
               <input
                 type="text"
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors font-mono"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors font-mono"
                 placeholder="Ex: ABC123"
                 required
               />
@@ -193,7 +193,7 @@ export const LeagueList: React.FC<LeagueListProps> = ({
         {leagues.map((league) => (
           <div
             key={league.id}
-            className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-green-300 cursor-pointer transform hover:-translate-y-1"
+            className="group bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-500 cursor-pointer transform hover:-translate-y-1"
             onClick={() => onSelectLeague(league)}
           >
             <div className="p-6">
@@ -202,7 +202,7 @@ export const LeagueList: React.FC<LeagueListProps> = ({
                   <Trophy className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-mono bg-gray-100 px-3 py-1 rounded-full text-gray-700">
+                  <span className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full text-gray-700 dark:text-gray-300">
                     {league.code}
                   </span>
                   <button
@@ -210,28 +210,28 @@ export const LeagueList: React.FC<LeagueListProps> = ({
                       e.stopPropagation();
                       copyCode(league.code);
                     }}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors relative"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full transition-colors relative"
                   >
                     {copiedCode === league.code ? (
-                      <Check className="w-4 h-4 text-green-600" />
+                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                     ) : (
-                      <Copy className="w-4 h-4 text-gray-500" />
+                      <Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     )}
                   </button>
                 </div>
               </div>
 
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                 {league.name}
               </h3>
 
               {league.description && (
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
                   {league.description}
                 </p>
               )}
 
-              <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center space-x-1">
                   <Calendar className="w-4 h-4" />
                   <span>
@@ -239,7 +239,7 @@ export const LeagueList: React.FC<LeagueListProps> = ({
                   </span>
                 </div>
                 <button
-                  className="flex items-center space-x-1 hover:text-green-600 hover:underline transition-colors"
+                  className="flex items-center space-x-1 hover:text-green-600 dark:hover:text-green-400 hover:underline transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     onShowLeagueMembers(league);
@@ -250,9 +250,9 @@ export const LeagueList: React.FC<LeagueListProps> = ({
                 </button>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-200 flex justify-end">
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
                 <button
-                  className="text-sm font-medium text-green-600 hover:text-green-700 hover:underline"
+                  className="text-sm font-medium text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline"
                   onClick={(e) => {
                     e.stopPropagation();
                     onShowLeagueBets(league);
@@ -267,16 +267,16 @@ export const LeagueList: React.FC<LeagueListProps> = ({
       </div>
 
       {leagues.length === 0 && (
-        <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
+        <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700">
           <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <Trophy className="w-10 h-10 text-white" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">
+          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
             Nenhuma liga encontrada
           </h3>
-          <p className="text-gray-500 mb-6 max-w-md mx-auto">
+          <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
             Crie sua primeira liga ou entre em uma existente para começar a apostar com seus amigos
-          </p>
+          p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={() => setShowCreateForm(true)}

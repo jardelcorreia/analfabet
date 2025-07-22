@@ -115,7 +115,7 @@ export const MatchList: React.FC<MatchListProps> = ({
   if (error) {
     return (
       <div className="text-center py-12 px-4">
-        <p className="text-red-600 text-sm sm:text-base">Erro ao carregar jogos: {error}</p>
+        <p className="text-red-600 dark:text-red-400 text-sm sm:text-base">Erro ao carregar jogos: {error}</p>
       </div>
     );
   }
@@ -124,7 +124,7 @@ export const MatchList: React.FC<MatchListProps> = ({
     <div className="space-y-4 sm:space-y-6">
       {/* Header with improved mobile layout */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Jogos</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Jogos</h2>
         <RoundSelector
           selectedRound={selectedRound}
           onRoundChange={onRoundChange}
@@ -151,12 +151,12 @@ export const MatchList: React.FC<MatchListProps> = ({
 
       {/* Empty state with responsive design */}
       {matches.length === 0 && (
-        <div className="text-center py-8 sm:py-12 bg-gray-50 rounded-lg mx-4 sm:mx-0">
-          <Calendar className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-base sm:text-lg font-semibold text-gray-600 mb-2">
+        <div className="text-center py-8 sm:py-12 bg-gray-50 dark:bg-gray-800 rounded-lg mx-4 sm:mx-0">
+          <Calendar className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h3 className="text-base sm:text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
             Nenhum jogo encontrado
           </h3>
-          <p className="text-sm sm:text-base text-gray-500 px-4">
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4">
             {selectedRound ? `Não há jogos para a ${selectedRound}ª rodada` : 'Não há jogos disponíveis'}
           </p>
         </div>

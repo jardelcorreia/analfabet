@@ -20,7 +20,7 @@ const roundSelectorStyles = cva(
 const labelStyles = cva('text-sm font-medium whitespace-nowrap', {
   variants: {
     variant: {
-      default: 'text-gray-700',
+      default: 'text-gray-700 dark:text-gray-300',
       onGradient: 'text-white/90',
     },
   },
@@ -32,7 +32,7 @@ const selectStyles = cva(
     variants: {
       variant: {
         default:
-          'bg-white border border-gray-300 focus:ring-blue-500 focus:border-transparent hover:border-gray-400',
+          'bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 dark:hover:border-gray-500',
         onGradient:
           'bg-white/10 text-white border border-white/30 backdrop-blur-sm focus:ring-white/50 focus:border-white/50 hover:border-white/50',
       },
