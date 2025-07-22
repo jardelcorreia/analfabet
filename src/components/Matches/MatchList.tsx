@@ -124,12 +124,20 @@ export const MatchList: React.FC<MatchListProps> = ({
     <div className="space-y-4 sm:space-y-6">
       {/* Header with improved mobile layout */}
       <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg p-4 mb-4 text-white">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Jogos</h2>
-        <RoundSelector
-          selectedRound={selectedRound}
-          onRoundChange={onRoundChange}
-          totalRounds={38}
-        />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold">Jogos</h1>
+            <p className="text-green-100 text-sm">Faça suas apostas</p>
+          </div>
+          <div className="w-full sm:w-auto">
+            <RoundSelector
+              selectedRound={selectedRound}
+              onRoundChange={onRoundChange}
+              totalRounds={38}
+              variant="onGradient"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Responsive grid with improved mobile layout */}

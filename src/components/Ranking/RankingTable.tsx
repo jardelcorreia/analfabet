@@ -116,29 +116,19 @@ export const RankingTable: React.FC<RankingTableProps> = ({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 px-6 py-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center space-x-3 text-white">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold">Ranking da Liga</h2>
-              <p className="text-blue-100 dark:text-blue-300 text-sm">Classificação dos jogadores</p>
-            </div>
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 rounded-lg p-4 mb-4 text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold">Ranking da Liga</h1>
+            <p className="text-blue-100 text-sm">Classificação dos jogadores</p>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="hidden sm:block">
-              <RoundSelector
-                selectedRound={selectedRound}
-                onRoundChange={onRoundChange}
-                totalRounds={totalRounds}
-              />
-            </div>
-            <div className="hidden sm:flex items-center space-x-2 text-white/80">
-              <TrendingUp className="w-5 h-5" />
-              <span className="text-sm">{ranking.length} jogadores</span>
-            </div>
+          <div className="w-full sm:w-auto">
+            <RoundSelector
+              selectedRound={selectedRound}
+              onRoundChange={onRoundChange}
+              totalRounds={totalRounds}
+              variant="onGradient"
+            />
           </div>
         </div>
       </div>
