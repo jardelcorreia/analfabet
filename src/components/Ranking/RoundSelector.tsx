@@ -7,7 +7,7 @@ const roundSelectorStyles = cva(
   {
     variants: {
       variant: {
-        default: '',
+        default: 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 dark:hover:border-gray-500',
         onGradient: '',
       },
     },
