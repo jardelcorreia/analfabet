@@ -276,7 +276,7 @@ export const LeagueList: React.FC<LeagueListProps> = ({
           </h3>
           <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
             Crie sua primeira liga ou entre em uma existente para começar a apostar com seus amigos
-          p>
+          </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={() => setShowCreateForm(true)}
@@ -319,4 +319,4 @@ export const LeagueList: React.FC<LeagueListProps> = ({
       `}</style>
     </div>
   );
-};
+}
