@@ -112,15 +112,10 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
                 const badge = getResultBadge(bet);
                 return (
                   <div key={bet.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-2 border border-gray-200 dark:border-gray-600 flex items-center justify-between w-auto">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="font-bold text-xs text-gray-600 dark:text-gray-300">
-                          {bet.user.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
+                    <div className="flex items-center space-x-1">
                       <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-200 truncate">{bet.user.name}</h4>
                     </div>
-                    <div className="flex items-center space-x-2 ml-2">
+                    <div className="flex items-center space-x-1">
                       <span className="text-lg font-bold text-gray-800 dark:text-white">
                         {bet.home_score} - {bet.away_score}
                       </span>
