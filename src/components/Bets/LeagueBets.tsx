@@ -65,7 +65,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
       {/* Header Compacto */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-800 dark:to-emerald-900 rounded-lg p-1 mb-4 text-white">
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-800 dark:to-emerald-900 rounded-lg p-4 mb-4 text-white">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold">{league?.name}</h1>
@@ -82,7 +82,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
         </div>
       </div>
 
-      <div className="space-y-4 p-4">
+      <div className="space-y-4 p-1">
         {Object.values(betsByMatch).map(({ match, bets }) => (
           <div key={match.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="sm:m-1 p-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
