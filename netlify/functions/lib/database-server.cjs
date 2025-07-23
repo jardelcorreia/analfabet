@@ -438,6 +438,22 @@ const dbHelpers = {
       return roundsWonMap;
     };
 
+    const getRoundsTiedData = async () => {
+      const roundsTiedData = await sql`
+        SELECT
+          rt.user_id,
+          ARRAY_AGG(rt.round_number ORDER BY rt.round_number) as rounds_tied_list
+        FROM round_tied rt
+        WHERE rt.league_id = ${leagueId}
+        GROUP BY rt.user_id
+      `;
+      const roundsTiedMap = new Map();
+      roundsTiedData.forEach(row => {
+        roundsTiedMap.set(row.user_id, row.rounds_tied_list || []);
+      });
+      return roundsTiedMap;
+    };
+
     // Always calculate ranking on the fly if a specific round is requested
     if (round) {
       const result = await sql`
@@ -462,6 +478,8 @@ const dbHelpers = {
         league_id: leagueId,
         rounds_won: 0,
         rounds_won_list: [],
+        rounds_tied: 0,
+        rounds_tied_list: [],
         user: {
           id: row.user_id,
           name: row.user_name,
@@ -490,9 +508,20 @@ const dbHelpers = {
       `;
 
     const roundsWonMap = await getRoundsWonData();
+    const roundsTiedMap = await getRoundsTiedData();
 
-    return liveRankingResult.map(row => {
+    let position = 1;
+    return liveRankingResult.map((row, index) => {
       const roundsWonList = roundsWonMap.get(row.user_id) || [];
+      const roundsTiedList = roundsTiedMap.get(row.user_id) || [];
+
+      if (index > 0) {
+        const prevRow = liveRankingResult[index - 1];
+        if (row.total_points < prevRow.total_points || row.exact_scores < prevRow.exact_scores) {
+          position = index + 1;
+        }
+      }
+
       return {
         user_id: row.user_id,
         league_id: leagueId,
@@ -502,6 +531,9 @@ const dbHelpers = {
         correct_results: row.correct_results,
         rounds_won: roundsWonList.length,
         rounds_won_list: roundsWonList,
+        rounds_tied: roundsTiedList.length,
+        rounds_tied_list: roundsTiedList,
+        position,
         user: {
           id: row.user_id,
           name: row.user_name,
@@ -530,6 +562,11 @@ const dbHelpers = {
   async calculateDetailedRoundsWon(leagueId) {
     await sql`SELECT calculate_detailed_rounds_won_for_league(${leagueId})`;
   },
+
+  async calculateDetailedRoundsTied(leagueId) {
+    await sql`SELECT calculate_detailed_rounds_tied_for_league(${leagueId})`;
+  },
+
   async getUserStats(userId, leagueId) {
     const result = await sql`
       SELECT * FROM user_stats WHERE user_id = ${userId} AND league_id = ${leagueId}

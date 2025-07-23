@@ -133,19 +133,19 @@ export const RankingTable: React.FC<RankingTableProps> = ({
   };
 
   // Compact Mobile Row Component
-  const MobileCompactRow = ({ userStat, position }: { userStat: UserStats, position: number }) => {
+  const MobileCompactRow = ({ userStat }: { userStat: UserStats }) => {
     const accuracy = userStat.total_bets > 0
       ? ((userStat.correct_results / userStat.total_bets) * 100)
       : 0;
 
     return (
-      <div className={`border-b border-gray-200 dark:border-gray-700 transition-all duration-200 ${getRowClass(userStat.user_id, position)}`}>
+      <div className={`border-b border-gray-200 dark:border-gray-700 transition-all duration-200 ${getRowClass(userStat.user_id, userStat.position)}`}>
         <div className="px-4 py-3">
           {/* Main Row */}
           <div className="flex items-center justify-between">
             {/* Left: Position, Avatar, Name */}
             <div className="flex items-center space-x-3 flex-1 min-w-0">
-              {getMedalIcon(position)}
+              {getMedalIcon(userStat.position)}
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md flex-shrink-0">
                 {userStat.user.name.charAt(0).toUpperCase()}
               </div>
@@ -184,12 +184,18 @@ export const RankingTable: React.FC<RankingTableProps> = ({
                 <span className="text-gray-700 dark:text-gray-300">{userStat.exact_scores}</span>
               </div>
 
-              {/* Rounds Won */}
+              {/* Rounds Won & Tied */}
               {selectedRound === 'all' && (
-                <div className="flex items-center space-x-1">
-                  <Crown className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                  <span className="text-gray-700 dark:text-gray-300">{userStat.rounds_won || 0}</span>
-                </div>
+                <>
+                  <div className="flex items-center space-x-1">
+                    <Crown className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                    <span className="text-gray-700 dark:text-gray-300">{userStat.rounds_won || 0}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Star className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                    <span className="text-gray-700 dark:text-gray-300">{userStat.rounds_tied || 0}</span>
+                  </div>
+                </>
               )}
 
               {/* Accuracy */}
@@ -244,17 +250,17 @@ export const RankingTable: React.FC<RankingTableProps> = ({
   };
 
   // Desktop Table Row Component
-  const DesktopRow = ({ userStat, position }: { userStat: UserStats, position: number }) => {
+  const DesktopRow = ({ userStat }: { userStat: UserStats }) => {
     const accuracy = userStat.total_bets > 0
       ? ((userStat.correct_results / userStat.total_bets) * 100)
       : 0;
 
     return (
       <React.Fragment key={userStat.user_id}>
-        <tr className={`border dark:border-gray-700 transition-all duration-200 ${getRowClass(userStat.user_id, position)}`}>
+        <tr className={`border dark:border-gray-700 transition-all duration-200 ${getRowClass(userStat.user_id, userStat.position)}`}>
           <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
             <div className="flex items-center">
-              {getMedalIcon(position)}
+              {getMedalIcon(userStat.position)}
             </div>
           </td>
           <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
@@ -301,7 +307,7 @@ export const RankingTable: React.FC<RankingTableProps> = ({
           </td>
           {selectedRound === 'all' && (
             <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden lg:table-cell">
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center space-x-2">
                 <div
                   className="flex items-center space-x-1 bg-purple-100 dark:bg-purple-900/50 rounded-full px-3 py-1 cursor-pointer hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
                   onClick={() => toggleRowExpansion(userStat.user_id)}
@@ -310,12 +316,12 @@ export const RankingTable: React.FC<RankingTableProps> = ({
                   <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
                     {userStat.rounds_won || 0}
                   </span>
-                  {userStat.rounds_won > 0 &&
-                    (expandedRows.has(userStat.user_id) ? (
-                      <ChevronUp className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                    ) : (
-                      <ChevronDown className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                    ))}
+                </div>
+                <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700/50 rounded-full px-3 py-1">
+                  <Star className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    {userStat.rounds_tied || 0}
+                  </span>
                 </div>
               </div>
             </td>
@@ -491,16 +497,12 @@ export const RankingTable: React.FC<RankingTableProps> = ({
       {/* Mobile View - Compact List */}
       {isMobile ? (
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
-          {filteredRanking.map((userStat, index) => {
-            const originalPosition = ranking.findIndex(u => u.user_id === userStat.user_id) + 1;
-            return (
-              <MobileCompactRow
-                key={userStat.user_id}
-                userStat={userStat}
-                position={originalPosition}
-              />
-            );
-          })}
+          {filteredRanking.map((userStat) => (
+            <MobileCompactRow
+              key={userStat.user_id}
+              userStat={userStat}
+            />
+          ))}
         </div>
       ) : (
         /* Desktop View */
@@ -532,16 +534,12 @@ export const RankingTable: React.FC<RankingTableProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredRanking.map((userStat, index) => {
-                const originalPosition = ranking.findIndex(u => u.user_id === userStat.user_id) + 1;
-                return (
-                  <DesktopRow
-                    key={userStat.user_id}
-                    userStat={userStat}
-                    position={originalPosition}
-                  />
-                );
-              })}
+              {filteredRanking.map((userStat) => (
+                <DesktopRow
+                  key={userStat.user_id}
+                  userStat={userStat}
+                />
+              ))}
             </tbody>
           </table>
         </div>

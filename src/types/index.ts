@@ -60,6 +60,9 @@ export interface UserStats {
   correct_results: number;
   rounds_won: number;
   rounds_won_list: number[];
+  rounds_tied: number;
+  rounds_tied_list: number[];
+  position: number;
   user: User;
 }
 
