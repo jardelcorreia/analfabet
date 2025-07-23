@@ -65,7 +65,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
       {/* Header Compacto */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-800 dark:to-emerald-900 rounded-lg p-4 mb-4 text-white">
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-800 dark:to-emerald-900 rounded-lg p-1 mb-4 text-white">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold">{league?.name}</h1>
