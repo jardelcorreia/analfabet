@@ -97,8 +97,8 @@ export const RankingTable: React.FC<RankingTableProps> = ({
         );
       default:
         return (
-          <div className="w-8 h-8 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center border-2 border-gray-300">
-            <span className="text-sm font-bold text-gray-600">{position}</span>
+          <div className="w-8 h-8 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-600 dark:to-gray-700 rounded-full flex items-center justify-center border-2 border-gray-300 dark:border-gray-500">
+            <span className="text-sm font-bold text-gray-600 dark:text-gray-200">{position}</span>
           </div>
         );
     }
@@ -109,27 +109,27 @@ export const RankingTable: React.FC<RankingTableProps> = ({
     const isTopThree = position <= 3;
 
     if (isCurrentUser) {
-      return 'bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 shadow-sm';
+      return 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-l-4 border-green-500 shadow-sm';
     }
 
     if (isTopThree) {
-      return 'bg-gradient-to-r from-yellow-50 to-amber-50 hover:from-yellow-100 hover:to-amber-100 transition-all duration-200';
+      return 'bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 hover:from-yellow-100 hover:to-amber-100 dark:hover:from-yellow-900/30 dark:hover:to-amber-900/30 transition-all duration-200';
     }
 
-    return 'bg-white hover:bg-gray-50 transition-all duration-200';
+    return 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200';
   };
 
   const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 70) return 'text-green-600 bg-green-100';
-    if (accuracy >= 50) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
+    if (accuracy >= 70) return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/50';
+    if (accuracy >= 50) return 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/50';
+    return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/50';
   };
 
   const getPositionBadge = (position: number) => {
     if (position === 1) return 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white';
     if (position === 2) return 'bg-gradient-to-r from-gray-300 to-gray-400 text-white';
     if (position === 3) return 'bg-gradient-to-r from-amber-500 to-amber-600 text-white';
-    return 'bg-gray-200 text-gray-700';
+    return 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200';
   };
 
   // Compact Mobile Row Component
@@ -167,7 +167,7 @@ export const RankingTable: React.FC<RankingTableProps> = ({
             </div>
 
             {/* Right: Points */}
-            <div className="flex items-center space-x-1 bg-yellow-100 dark:bg-yellow-900 rounded-full px-2 py-1 flex-shrink-0">
+            <div className="flex items-center space-x-1 bg-yellow-100 dark:bg-yellow-900/50 rounded-full px-2 py-1 flex-shrink-0">
               <Trophy className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
               <span className="text-sm font-bold text-yellow-800 dark:text-yellow-200">
                 {userStat.total_points}
@@ -185,12 +185,10 @@ export const RankingTable: React.FC<RankingTableProps> = ({
               </div>
 
               {/* Rounds Won */}
-              {selectedRound === 'all' && (
-                <div className="flex items-center space-x-1">
-                  <Crown className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                  <span className="text-gray-700 dark:text-gray-300">{userStat.rounds_won || 0}</span>
-                </div>
-              )}
+              <div className="flex items-center space-x-1">
+                <Crown className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                <span className="text-gray-700 dark:text-gray-300">{userStat.rounds_won || 0}</span>
+              </div>
 
               {/* Accuracy */}
               <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${getAccuracyColor(accuracy)}`}>
@@ -199,7 +197,7 @@ export const RankingTable: React.FC<RankingTableProps> = ({
             </div>
 
             {/* Expand Button */}
-            {selectedRound === 'all' && userStat.rounds_won > 0 && (
+            {userStat.rounds_won > 0 && (
               <button
                 onClick={() => toggleRowExpansion(userStat.user_id)}
                 className="flex items-center space-x-1 text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200 transition-colors p-1"
@@ -214,7 +212,7 @@ export const RankingTable: React.FC<RankingTableProps> = ({
           </div>
 
           {/* Expanded Details */}
-          {selectedRound === 'all' && expandedRows.has(userStat.user_id) && userStat.rounds_won > 0 && (
+          {expandedRows.has(userStat.user_id) && userStat.rounds_won > 0 && (
             <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
               <div className="text-xs font-medium text-purple-800 dark:text-purple-200 mb-2">
                 Rodadas vencidas:
@@ -243,7 +241,7 @@ export const RankingTable: React.FC<RankingTableProps> = ({
     );
   };
 
-  // Desktop Table Row Component (unchanged)
+  // Desktop Table Row Component
   const DesktopRow = ({ userStat, position }: { userStat: UserStats, position: number }) => {
     const accuracy = userStat.total_bets > 0
       ? ((userStat.correct_results / userStat.total_bets) * 100)
@@ -251,7 +249,7 @@ export const RankingTable: React.FC<RankingTableProps> = ({
 
     return (
       <React.Fragment key={userStat.user_id}>
-        <tr className={`border transition-all duration-200 ${getRowClass(userStat.user_id, position)}`}>
+        <tr className={`border dark:border-gray-700 transition-all duration-200 ${getRowClass(userStat.user_id, position)}`}>
           <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
             <div className="flex items-center">
               {getMedalIcon(position)}
@@ -281,7 +279,7 @@ export const RankingTable: React.FC<RankingTableProps> = ({
           </td>
           <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
             <div className="flex items-center justify-center">
-              <div className="flex items-center space-x-1 bg-yellow-100 dark:bg-yellow-900 rounded-full px-3 py-1">
+              <div className="flex items-center space-x-1 bg-yellow-100 dark:bg-yellow-900/50 rounded-full px-3 py-1">
                 <Trophy className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                 <span className="text-sm font-bold text-yellow-800 dark:text-yellow-200">
                   {userStat.total_points}
@@ -291,7 +289,7 @@ export const RankingTable: React.FC<RankingTableProps> = ({
           </td>
           <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
             <div className="flex items-center justify-center">
-              <div className="flex items-center space-x-1 bg-green-100 dark:bg-green-900 rounded-full px-3 py-1">
+              <div className="flex items-center space-x-1 bg-green-100 dark:bg-green-900/50 rounded-full px-3 py-1">
                 <Target className="w-4 h-4 text-green-600 dark:text-green-400" />
                 <span className="text-sm font-medium text-green-800 dark:text-green-200">
                   {userStat.exact_scores}
@@ -299,24 +297,22 @@ export const RankingTable: React.FC<RankingTableProps> = ({
               </div>
             </div>
           </td>
-          {selectedRound === 'all' && (
-            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden lg:table-cell">
-              <div className="flex items-center justify-center">
-                <div className="flex items-center space-x-1 bg-purple-100 dark:bg-purple-900 rounded-full px-3 py-1 cursor-pointer hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
-                     onClick={() => toggleRowExpansion(userStat.user_id)}>
-                  <Crown className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                    {userStat.rounds_won || 0}
-                  </span>
-                  {userStat.rounds_won > 0 && (
-                    expandedRows.has(userStat.user_id)
-                      ? <ChevronUp className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                      : <ChevronDown className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                  )}
-                </div>
+          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden lg:table-cell">
+            <div className="flex items-center justify-center">
+              <div className="flex items-center space-x-1 bg-purple-100 dark:bg-purple-900/50 rounded-full px-3 py-1 cursor-pointer hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+                   onClick={() => toggleRowExpansion(userStat.user_id)}>
+                <Crown className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                  {userStat.rounds_won || 0}
+                </span>
+                {userStat.rounds_won > 0 && (
+                  expandedRows.has(userStat.user_id)
+                    ? <ChevronUp className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                    : <ChevronDown className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                )}
               </div>
-            </td>
-          )}
+            </div>
+          </td>
           <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center hidden md:table-cell">
             <span className="text-sm font-medium text-gray-900 dark:text-white">
               {userStat.total_bets}
@@ -328,8 +324,8 @@ export const RankingTable: React.FC<RankingTableProps> = ({
             </span>
           </td>
         </tr>
-        {selectedRound === 'all' && expandedRows.has(userStat.user_id) && userStat.rounds_won > 0 && (
-          <tr className="bg-purple-50 dark:bg-purple-900 border-l-4 border-purple-200 dark:border-purple-800">
+        {expandedRows.has(userStat.user_id) && userStat.rounds_won > 0 && (
+          <tr className="bg-purple-50 dark:bg-purple-900/30 border-l-4 border-purple-200 dark:border-purple-700">
             <td colSpan={7} className="px-4 sm:px-6 py-4">
               <div className="flex flex-col space-y-3">
                 <div className="flex items-center space-x-2">
@@ -369,61 +365,65 @@ export const RankingTable: React.FC<RankingTableProps> = ({
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 md:px-6 py-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0">
-            <h2 className="text-xl md:text-2xl font-bold text-white flex items-center space-x-2">
-              <Trophy className="w-5 h-5 md:w-6 md:h-6" />
-              <span>Ranking de Jogadores</span>
-            </h2>
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center space-x-2">
+            <Trophy className="w-5 h-5 md:w-6 md:h-6" />
+            <span>Ranking de Jogadores</span>
+          </h2>
 
-            {/* Controls */}
-            <div className="flex flex-col md:flex-row items-stretch md:items-center space-y-2 md:space-y-0 md:space-x-2">
-              <div className="flex items-center space-x-2 w-full md:w-auto">
-                {/* Search */}
-                <div className="relative flex-grow">
-                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar jogador..."
-                  className="pl-8 pr-3 py-1.5 text-sm bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 w-full"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+          {/* Controls - Stacked on mobile for better responsiveness */}
+          <div className="flex flex-col space-y-3">
+            {/* Search Bar - Full width on mobile */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/70" />
+              <input
+                type="text"
+                placeholder="Buscar jogador..."
+                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/25 transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
 
+            {/* Filter and Round Selector - Side by side */}
+            <div className="flex flex-col sm:flex-row gap-3">
               {/* Top 10 Filter */}
               <button
                 onClick={() => setShowTopOnly(!showTopOnly)}
-                className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                className={`flex items-center justify-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all ${
                   showTopOnly
-                    ? 'bg-white/30 text-white'
+                    ? 'bg-white/30 text-white shadow-md'
                     : 'bg-white/10 text-white/80 hover:bg-white/20'
                 }`}
               >
                 <Filter className="w-4 h-4" />
-                <span className="hidden md:inline">Top 10</span>
+                <span>Top 10</span>
               </button>
 
-              <RoundSelector
-                selectedRound={selectedRound}
-                onRoundChange={onRoundChange}
-                totalRounds={totalRounds}
-                variant="onGradient"
-              />
+              {/* Round Selector - More space on mobile */}
+              <div className="flex-grow sm:flex-grow-0">
+                <RoundSelector
+                  selectedRound={selectedRound}
+                  onRoundChange={onRoundChange}
+                  totalRounds={totalRounds}
+                  variant="onGradient"
+                />
               </div>
             </div>
           </div>
         </div>
+      </div>
 
       {/* Results Summary */}
-        <div className="px-4 md:px-6 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            Mostrando {filteredRanking.length} de {ranking.length} jogadores
-            {searchTerm && ` para "${searchTerm}"`}
-            {showTopOnly && ' (Top 10)'}
-          </p>
-        </div>
+      <div className="px-4 md:px-6 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Mostrando {filteredRanking.length} de {ranking.length} jogadores
+          {searchTerm && ` para "${searchTerm}"`}
+          {showTopOnly && ' (Top 10)'}
+        </p>
+      </div>
 
-      {/* Top 3 Podium - Mobile and Desktop */}
+      {/* Top 3 Podium - Desktop only */}
       {filteredRanking.length >= 3 && !isMobile && (
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-4 py-6 sm:px-6">
           <div className="flex justify-center items-end space-x-4 sm:space-x-8">
@@ -513,11 +513,9 @@ export const RankingTable: React.FC<RankingTableProps> = ({
                 <th className="px-4 sm:px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Placares Exatos
                 </th>
-                {selectedRound === 'all' && (
-                  <th className="px-4 sm:px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
-                    Rodadas Vencidas
-                  </th>
-                )}
+                <th className="px-4 sm:px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
+                  Rodadas Vencidas
+                </th>
                 <th className="px-4 sm:px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell">
                   Apostas
                 </th>
