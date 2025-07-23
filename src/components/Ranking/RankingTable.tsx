@@ -372,9 +372,10 @@ export const RankingTable: React.FC<RankingTableProps> = ({
             </h2>
 
             {/* Controls */}
-            <div className="flex items-center space-x-2">
-              {/* Search */}
-              <div className="relative">
+            <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+              <div className="flex items-center space-x-2">
+                {/* Search */}
+                <div className="relative">
                 <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
@@ -397,6 +398,14 @@ export const RankingTable: React.FC<RankingTableProps> = ({
                 <Filter className="w-4 h-4" />
                 <span className="hidden md:inline">Top 10</span>
               </button>
+
+              <RoundSelector
+                selectedRound={selectedRound}
+                onRoundChange={onRoundChange}
+                totalRounds={totalRounds}
+                variant="onGradient"
+              />
+              </div>
             </div>
           </div>
         </div>
