@@ -372,15 +372,15 @@ export const RankingTable: React.FC<RankingTableProps> = ({
             </h2>
 
             {/* Controls */}
-            <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-              <div className="flex items-center space-x-2">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center space-y-2 md:space-y-0 md:space-x-2">
+              <div className="flex items-center space-x-2 w-full md:w-auto">
                 {/* Search */}
-                <div className="relative">
+                <div className="relative flex-grow">
                 <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Buscar jogador..."
-                  className="pl-8 pr-3 py-1.5 text-sm bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 w-32 md:w-48"
+                  className="pl-8 pr-3 py-1.5 text-sm bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 w-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />

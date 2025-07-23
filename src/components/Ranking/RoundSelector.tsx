@@ -3,7 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 const roundSelectorStyles = cva(
-  'flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3 w-full sm:w-auto',
+  'flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3 w-auto',
   {
     variants: {
       variant: {
