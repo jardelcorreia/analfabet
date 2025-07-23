@@ -86,7 +86,7 @@ export const LeagueBets: React.FC<LeagueBetsProps> = ({ league }) => {
         {Object.values(betsByMatch).map(({ match, bets }) => (
           <div key={match.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="p-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-              <div className="flex items-center justify-center space-x-2 sm:space-x-3">
+              <div className="flex items-center justify-center space-x-2 sm:space-x-1">
                 <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 text-right w-16 sm:w-24 truncate">
                   <span className="hidden sm:inline">{timesInfo[match.home_team]?.nome || match.home_team}</span>
                   <span className="sm:hidden">{timesInfo[match.home_team]?.abrev || match.home_team}</span>
